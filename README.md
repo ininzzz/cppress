@@ -1,6 +1,6 @@
 # CPPRESS
 
-- 用C++实现的网络框架，仿照node.js的express框架
+- 用C++实现的Web网络框架，仿照node.js的express框架
 
 - IO复用epoll+非阻塞socket+线程池的Reactor并发模型
 
@@ -8,7 +8,11 @@
 
 - 有限状态机解析Http请求报文
 
-- TODO：日志系统，定时器，Router路由，若干基础组件，若干bug和异常处理
+- 自动增长的缓冲区确保数据的正常收发
+
+- TODO：日志系统，定时器，Router路由，json解析，若干基础组件，若干bug和异常处理
+
+- 压力测试等bug改差不多了再做
 
 - 目前只是个半成品，还在慢慢完善/(ㄒoㄒ)/~~
 
@@ -41,5 +45,3 @@
       return 0;
   }
   ```
-
-  
