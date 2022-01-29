@@ -11,7 +11,7 @@ Epoller::~Epoller() {
 }
 
 void Epoller::Add(int fd_, uint32_t events_) {
-    if (fd_set.count(fd_)) { return Mod(fd_, events_); }
+    if (fd_set.count(fd_)) return Mod(fd_, events_);
     epoll_event event;
     event.data.fd = fd_;
     event.events = events_;
@@ -31,14 +31,15 @@ void Epoller::Mod(int fd_, uint32_t events_) {
 }
 
 void Epoller::Del(int fd_) {
+    if (fd_set.count(fd_) == 0) return;
     int ret = epoll_ctl(epollfd, EPOLL_CTL_DEL, fd_, NULL);
     if (ret == -1) throw std::runtime_error("epoll del error\n");
     fd_set.erase(fd_);
     events[fd_] = 0;
 }
 
-int Epoller::Wait() {
-    return epoll_wait(epollfd, revents, maxn, -1);
+int Epoller::Wait(int timeout) {
+    return epoll_wait(epollfd, revents, maxn, timeout);
 }
 
 epoll_event &Epoller::Get(int p) {

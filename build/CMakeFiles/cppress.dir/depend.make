@@ -11,6 +11,7 @@ CMakeFiles/cppress.dir/main.cpp.o: ../include/Response.h
 CMakeFiles/cppress.dir/main.cpp.o: ../include/Router.h
 CMakeFiles/cppress.dir/main.cpp.o: ../include/TCPConnection.h
 CMakeFiles/cppress.dir/main.cpp.o: ../include/ThreadPool.h
+CMakeFiles/cppress.dir/main.cpp.o: ../include/Timer.h
 CMakeFiles/cppress.dir/main.cpp.o: ../include/WebServer.h
 CMakeFiles/cppress.dir/main.cpp.o: ../main.cpp
 
@@ -23,6 +24,7 @@ CMakeFiles/cppress.dir/src/Epoller.cpp.o: ../src/Epoller.cpp
 CMakeFiles/cppress.dir/src/EventLoop.cpp.o: ../include/Epoller.h
 CMakeFiles/cppress.dir/src/EventLoop.cpp.o: ../include/EventLoop.h
 CMakeFiles/cppress.dir/src/EventLoop.cpp.o: ../include/ThreadPool.h
+CMakeFiles/cppress.dir/src/EventLoop.cpp.o: ../include/Timer.h
 CMakeFiles/cppress.dir/src/EventLoop.cpp.o: ../src/EventLoop.cpp
 
 CMakeFiles/cppress.dir/src/HttpEnum.cpp.o: ../include/HttpEnum.h
@@ -60,10 +62,14 @@ CMakeFiles/cppress.dir/src/TCPConnection.cpp.o: ../include/Request.h
 CMakeFiles/cppress.dir/src/TCPConnection.cpp.o: ../include/Response.h
 CMakeFiles/cppress.dir/src/TCPConnection.cpp.o: ../include/TCPConnection.h
 CMakeFiles/cppress.dir/src/TCPConnection.cpp.o: ../include/ThreadPool.h
+CMakeFiles/cppress.dir/src/TCPConnection.cpp.o: ../include/Timer.h
 CMakeFiles/cppress.dir/src/TCPConnection.cpp.o: ../src/TCPConnection.cpp
 
 CMakeFiles/cppress.dir/src/ThreadPool.cpp.o: ../include/ThreadPool.h
 CMakeFiles/cppress.dir/src/ThreadPool.cpp.o: ../src/ThreadPool.cpp
+
+CMakeFiles/cppress.dir/src/Timer.cpp.o: ../include/Timer.h
+CMakeFiles/cppress.dir/src/Timer.cpp.o: ../src/Timer.cpp
 
 CMakeFiles/cppress.dir/src/WebServer.cpp.o: ../include/Buffer.h
 CMakeFiles/cppress.dir/src/WebServer.cpp.o: ../include/Epoller.h
@@ -75,6 +81,7 @@ CMakeFiles/cppress.dir/src/WebServer.cpp.o: ../include/Response.h
 CMakeFiles/cppress.dir/src/WebServer.cpp.o: ../include/Router.h
 CMakeFiles/cppress.dir/src/WebServer.cpp.o: ../include/TCPConnection.h
 CMakeFiles/cppress.dir/src/WebServer.cpp.o: ../include/ThreadPool.h
+CMakeFiles/cppress.dir/src/WebServer.cpp.o: ../include/Timer.h
 CMakeFiles/cppress.dir/src/WebServer.cpp.o: ../include/WebServer.h
 CMakeFiles/cppress.dir/src/WebServer.cpp.o: ../src/WebServer.cpp
 

@@ -21,7 +21,7 @@ public:
     void Add(int fd_, uint32_t events_);
     void Mod(int fd_, uint32_t events_);
     void Del(int fd_);
-    int Wait();
+    int Wait(int timeout);
     epoll_event &Get(int p);
     uint32_t GetEvents(int fd);
     ~Epoller();

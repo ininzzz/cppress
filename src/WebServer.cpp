@@ -41,9 +41,17 @@ void WebServer::Listen(uint16_t port) {
         if (connfd == -1) throw std::runtime_error("client accept error");
         printf("new connection!\n");
         printf("sockfd is %d!\n", connfd);
-        // 处理新连接(初始化数据+注册事件)
+        // 处理新连接(初始化数据+注册超时/读事件)
         this->conn[connfd].init(connfd, temp, &(this->loop));
+
+        this->loop.AddTimeout(connfd, [connfd, this] {
+            this->loop.DeleteEvent(connfd);
+            if (close(connfd) < 0) return;
+            printf("%d is closed\n", connfd);
+        });
+
         this->loop.AddReadEvent(connfd, [connfd, this] {
+            this->loop.UpdateTimeout(connfd);
             // 拿到对应socket的req,res数据
             Request &req = this->conn[connfd].GetRequest();
             Response &res = this->conn[connfd].GetResponse();
@@ -69,6 +77,7 @@ void WebServer::Listen(uint16_t port) {
         this->loop.RestartEvent(this->sockfd);
     });
 
+    loop.SetTimeout(5000);
     loop.Loop();
 }
 

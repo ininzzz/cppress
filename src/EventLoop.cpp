@@ -11,7 +11,7 @@ void EventLoop::RestartEvent(int fd_) {
     epoll.Add(fd_, events);
 }
 
-void EventLoop::AddReadEvent(int fd_, std::function<void()> r_) {
+void EventLoop::AddReadEvent(int fd_, const std::function<void()> &r_) {
     uint32_t events = epoll.GetEvents(fd_);
     events |= EPOLLONESHOT;
     events |= EPOLLIN;
@@ -20,7 +20,7 @@ void EventLoop::AddReadEvent(int fd_, std::function<void()> r_) {
     epoll.Add(fd_, events);
 }
 
-void EventLoop::AddWriteEvent(int fd_, std::function<void()> w_) {
+void EventLoop::AddWriteEvent(int fd_, const std::function<void()> &w_) {
     uint32_t events = epoll.GetEvents(fd_);
     events |= EPOLLOUT;
     write_callback[fd_] = w_;
@@ -33,17 +33,31 @@ void EventLoop::DeleteEvent(int fd_) {
     write_callback.erase(fd_);
 }
 
+void EventLoop::SetTimeout(int timeout_) {
+    timer.SetTimeout(timeout_);
+    timeout = timeout_;
+}
+
+void EventLoop::AddTimeout(int fd_, const std::function<void()> &callback) {
+    timer.Add(fd_, callback);
+}
+
+void EventLoop::UpdateTimeout(int fd_) {
+    timer.Update(fd_);
+}
+
 void EventLoop::Loop() {
     pool.run();
     while (true) {
-        int len = epoll.Wait();
+        timer.Handle();
+        int len = epoll.Wait(timeout);
         for (int i = 0;i < len;i++) {
             epoll_event now = epoll.Get(i);
             int fd = now.data.fd;
             // 对端关闭连接,做相应处理
             if (now.events & EPOLLRDHUP) {
                 DeleteEvent(fd);
-                close(fd);
+                if (close(fd) < 0) continue;
                 printf("%d is closed\n", fd);
                 continue;
             }
