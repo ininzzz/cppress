@@ -18,14 +18,10 @@ Request &TCPConnection::GetRequest() {
 }
 
 Response &TCPConnection::GetResponse() {
+    res.Init(loop);
     return res;
 }
 
 void TCPConnection::DealResponse() {
-    loop->AddWriteEvent(sockfd, [this] {
-        if (this->res.buf.Readable()) {
-            this->res.buf.WriteTo(this->sockfd);
-        }
-        loop->RestartEvent(this->sockfd);
-    });
+    res.SendTo();
 }

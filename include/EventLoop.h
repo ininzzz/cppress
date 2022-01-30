@@ -10,8 +10,14 @@
 class EventLoop {
 public:
     EventLoop();
-    // 重新激活事件(epolloneshot或ET模式下的epollin)
+    // 重新激活事件(epolloneshot)
     void RestartEvent(int fd_);
+    // 激活写事件
+    void EnableWrite(int fd_);
+    // 激活读事件
+    void EnableRead(int fd_);
+    // 关闭读事件
+    void ShutdownWrite(int fd_);
     // 注册读事件
     void AddReadEvent(int fd_, const std::function<void()> &r_);
     // 注册写事件

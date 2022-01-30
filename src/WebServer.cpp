@@ -43,14 +43,15 @@ void WebServer::Listen(uint16_t port) {
         printf("sockfd is %d!\n", connfd);
         // 处理新连接(初始化数据+注册超时/读事件)
         this->conn[connfd].init(connfd, temp, &(this->loop));
-
+        printf("add timeout task!\n");
         this->loop.AddTimeout(connfd, [connfd, this] {
             this->loop.DeleteEvent(connfd);
             if (close(connfd) < 0) return;
-            printf("%d is closed\n", connfd);
+            printf("%d is closed because of timeout\n", connfd);
         });
-
+        printf("add read task!\n");
         this->loop.AddReadEvent(connfd, [connfd, this] {
+            printf("read task!\n");
             this->loop.UpdateTimeout(connfd);
             // 拿到对应socket的req,res数据
             Request &req = this->conn[connfd].GetRequest();
@@ -71,8 +72,16 @@ void WebServer::Listen(uint16_t port) {
                 }
             }
             // 重新激活epolloneshot
-            this->conn[connfd].DealResponse();
+            this->loop.RestartEvent(connfd);
         });
+        printf("add write task!\n");
+        this->loop.AddWriteEvent(connfd, [connfd, this] {
+            printf("write task!\n");
+            this->conn[connfd].DealResponse();
+            this->loop.RestartEvent(connfd);
+        });
+
+        printf("init client sucessfully!\n");
         // 重新激活epolloneshot
         this->loop.RestartEvent(this->sockfd);
     });

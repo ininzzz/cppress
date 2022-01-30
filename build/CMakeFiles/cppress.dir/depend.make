@@ -41,16 +41,24 @@ CMakeFiles/cppress.dir/src/Request.cpp.o: ../include/Request.h
 CMakeFiles/cppress.dir/src/Request.cpp.o: ../src/Request.cpp
 
 CMakeFiles/cppress.dir/src/Response.cpp.o: ../include/Buffer.h
+CMakeFiles/cppress.dir/src/Response.cpp.o: ../include/Epoller.h
+CMakeFiles/cppress.dir/src/Response.cpp.o: ../include/EventLoop.h
 CMakeFiles/cppress.dir/src/Response.cpp.o: ../include/HttpEnum.h
 CMakeFiles/cppress.dir/src/Response.cpp.o: ../include/Response.h
+CMakeFiles/cppress.dir/src/Response.cpp.o: ../include/ThreadPool.h
+CMakeFiles/cppress.dir/src/Response.cpp.o: ../include/Timer.h
 CMakeFiles/cppress.dir/src/Response.cpp.o: ../src/Response.cpp
 
 CMakeFiles/cppress.dir/src/Router.cpp.o: ../include/Buffer.h
+CMakeFiles/cppress.dir/src/Router.cpp.o: ../include/Epoller.h
+CMakeFiles/cppress.dir/src/Router.cpp.o: ../include/EventLoop.h
 CMakeFiles/cppress.dir/src/Router.cpp.o: ../include/HttpEnum.h
 CMakeFiles/cppress.dir/src/Router.cpp.o: ../include/HttpParser.h
 CMakeFiles/cppress.dir/src/Router.cpp.o: ../include/Request.h
 CMakeFiles/cppress.dir/src/Router.cpp.o: ../include/Response.h
 CMakeFiles/cppress.dir/src/Router.cpp.o: ../include/Router.h
+CMakeFiles/cppress.dir/src/Router.cpp.o: ../include/ThreadPool.h
+CMakeFiles/cppress.dir/src/Router.cpp.o: ../include/Timer.h
 CMakeFiles/cppress.dir/src/Router.cpp.o: ../src/Router.cpp
 
 CMakeFiles/cppress.dir/src/TCPConnection.cpp.o: ../include/Buffer.h

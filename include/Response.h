@@ -3,6 +3,7 @@
 
 #include"Buffer.h"
 #include"HttpEnum.h"
+#include"EventLoop.h"
 
 class Response {
 public:
@@ -11,9 +12,11 @@ public:
     void SetContentType(HTTP_CONTENT_TYPE type_);
 private:
     friend class TCPConnection;
-    void Init();
+    void Init(EventLoop *loop_);
+    void SendTo();
     int sockfd;
     Buffer buf;
+    EventLoop *loop;
 
     HTTP_STATUS status;
     HTTP_CONTENT_TYPE type;

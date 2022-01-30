@@ -3,9 +3,25 @@
 EventLoop::EventLoop() {}
 
 void EventLoop::RestartEvent(int fd_) {
-    uint32_t events = 0;
-    // epolloneshot保证每个socket只被一个线程处理
+    uint32_t events = epoll.GetEvents(fd_);
     events |= EPOLLONESHOT;
+    epoll.Add(fd_, events);
+}
+
+void EventLoop::EnableWrite(int fd_) {
+    uint32_t events = epoll.GetEvents(fd_);
+    events |= EPOLLOUT;
+    epoll.Add(fd_, events);
+}
+
+void EventLoop::EnableRead(int fd_) {
+    uint32_t events = epoll.GetEvents(fd_);
+    events |= EPOLLIN;
+    epoll.Add(fd_, events);
+}
+
+void EventLoop::ShutdownWrite(int fd_) {
+    uint32_t events = 0;
     events |= EPOLLIN;
     events |= EPOLLRDHUP;
     epoll.Add(fd_, events);
@@ -13,18 +29,19 @@ void EventLoop::RestartEvent(int fd_) {
 
 void EventLoop::AddReadEvent(int fd_, const std::function<void()> &r_) {
     uint32_t events = epoll.GetEvents(fd_);
-    events |= EPOLLONESHOT;
     events |= EPOLLIN;
     events |= EPOLLRDHUP;
+    events |= EPOLLONESHOT;
     read_callback[fd_] = r_;
     epoll.Add(fd_, events);
 }
 
 void EventLoop::AddWriteEvent(int fd_, const std::function<void()> &w_) {
-    uint32_t events = epoll.GetEvents(fd_);
-    events |= EPOLLOUT;
+    // LT模式不在添加回调函数的时候注册，而用EnableWrite注册
+    // uint32_t events = epoll.GetEvents(fd_);
+    // events |= EPOLLOUT;
     write_callback[fd_] = w_;
-    epoll.Add(fd_, events);
+    // epoll.Add(fd_, events);
 }
 
 void EventLoop::DeleteEvent(int fd_) {
@@ -61,10 +78,10 @@ void EventLoop::Loop() {
                 printf("%d is closed\n", fd);
                 continue;
             }
-            if (now.events & EPOLLIN) {
+            else if (now.events & EPOLLIN) {
                 pool.append(read_callback[fd]);
             }
-            if (now.events & EPOLLOUT) {
+            else if (now.events & EPOLLOUT) {
                 pool.append(write_callback[fd]);
             }
         }
