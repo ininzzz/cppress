@@ -9,7 +9,7 @@ void Response::Send(const std::string &msg) {
     buf.Append("\r\n");
     // body
     buf.Append(msg + "\r\n");
-    loop->EnableWrite(sockfd);
+    need_write = true;
 }
 
 void Response::SetContentType(HTTP_CONTENT_TYPE type_) {
@@ -24,10 +24,12 @@ void Response::Init(EventLoop *loop_) {
     status = HTTP_STATUS::OK;
     type = HTTP_CONTENT_TYPE::TEXT_HTML;
     loop = loop_;
+    need_write = false;
 }
 
 void Response::SendTo() {
     int sz = buf.Readable(), len = buf.WriteTo(sockfd);
     if (len > 0 && len < sz) return;
-    loop->ShutdownWrite(sockfd);
+    need_write = false;
+    return;
 }

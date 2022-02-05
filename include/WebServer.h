@@ -10,6 +10,8 @@
 #include<string>
 #include<vector>
 #include<map>
+#include<unordered_map>
+#include<list>
 #include<functional>
 
 #include"EventLoop.h"
@@ -25,11 +27,17 @@ public:
     void Post(const std::string &url, const std::function<void(Request&, Response&)> &func = nullptr);
     ~WebServer();
 private:
+    void AcceptTask();
+    void ReadTask(int fd_);
+    void WriteTask(int fd_);
+    void CloseTask(int fd_);
+    void TimeoutTask(int fd_);
     int sockfd;
+    uint32_t event;
     std::vector<Router> router;
     EventLoop loop;
-    std::map<std::string, std::function<void(Request&, Response&)>> get, post;
-    std::map<int, TCPConnection> conn;
+    std::unordered_map<std::string, std::function<void(Request&, Response&)>> get, post;
+    std::unordered_map<int, TCPConnection > conn;
 };
 
 

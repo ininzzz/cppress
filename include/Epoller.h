@@ -13,24 +13,27 @@
 #include<sys/epoll.h>
 #include<unistd.h>
 
-#define MAX_FD 512
+const int MAX_FD = 4096;
 
 class Epoller {
 public:
     Epoller();
+    Epoller(const Epoller &) = delete;
+    Epoller &operator=(const Epoller &) = delete;
+    Epoller(Epoller &&) = default;
+    Epoller &operator=(Epoller &&) = default;
+    ~Epoller();
+    
     void Add(int fd_, uint32_t events_);
     void Mod(int fd_, uint32_t events_);
     void Del(int fd_);
-    int Wait(int timeout);
-    epoll_event &Get(int p);
-    uint32_t GetEvents(int fd);
-    ~Epoller();
+    
+    epoll_event &Get(int id_);
+    int Wait(int timeout_);
+    
 private:
-    static const int maxn = MAX_FD;
     int epollfd;
-    epoll_event revents[maxn];
-    uint32_t events[maxn];
-    std::set<int> fd_set;
+    epoll_event revents[MAX_FD];
 };
 
 

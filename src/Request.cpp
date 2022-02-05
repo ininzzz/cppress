@@ -3,7 +3,7 @@
 Request::Request() {}
 
 HTTP_CODE Request::ReadFrom() {
-    buf.ReadFrom(sockfd);
+    if (buf.ReadFrom(sockfd) == 0) return HTTP_CODE::OPEN;
     parser.Append(buf.GetBuf());
     return parser.Parse();
 }

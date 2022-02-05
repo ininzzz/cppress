@@ -14,6 +14,7 @@ public:
     std::string host() { return parser.host(); }
     HTTP_METHOD method() { return parser.method(); }
     HTTP_VERSION version() { return parser.version(); }
+    HTTP_CONNECTION connection() { return parser.connection(); }
 private:
     friend class TCPConnection;
     HTTP_CODE ReadFrom();

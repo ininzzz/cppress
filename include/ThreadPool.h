@@ -8,7 +8,7 @@
 #include<condition_variable>
 #include<functional>
 
-const int maxn = std::thread::hardware_concurrency() - 1;
+const int maxn = 8;
 
 class ThreadPool {
 public:

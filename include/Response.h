@@ -20,6 +20,8 @@ private:
 
     HTTP_STATUS status;
     HTTP_CONTENT_TYPE type;
+
+    bool need_write;
 };
 
 

@@ -1,19 +1,23 @@
 #include"Timer.h"
 
-Timer::Timer(int timeout) :interval(timeout) {}
+Timer::Timer():save(4096) {}
 
-void Timer::Add(int fd, const std::function<void()> &callback) {
-    while (fd >= save.size()) save.emplace_back();
-    
+void Timer::Insert(int fd_) {
+    if (std::chrono::high_resolution_clock::to_time_t(save[fd_]) > 0) Erase(fd_);
+
     TimerNode node;
-    node.fd = fd;
-    node.callback = callback;
-    save[fd] = node.tm = std::chrono::high_resolution_clock::now() + interval;
+    node.fd = fd_;
+    save[fd_] = node.tm = std::chrono::high_resolution_clock::now() + interval;
     que.push(node);
 }
 
-void Timer::Update(int fd) {
-    save[fd] = std::chrono::high_resolution_clock::now() + interval;
+void Timer::Update(int fd_) {
+    if (std::chrono::high_resolution_clock::to_time_t(save[fd_]) == 0) return;
+    save[fd_] = std::chrono::high_resolution_clock::now() + interval;
+}
+
+void Timer::Erase(int fd_) {
+    save[fd_] = std::chrono::high_resolution_clock::from_time_t(0);
 }
 
 void Timer::Handle() {
@@ -27,10 +31,16 @@ void Timer::Handle() {
             continue;
         }
         que.pop();
+        if (std::chrono::high_resolution_clock::to_time_t(save[node.fd]) == 0) continue;
         save[node.fd] = std::chrono::high_resolution_clock::from_time_t(0);
-        node.callback();
+        callback(node.fd);
     }
 }
-void Timer::SetTimeout(int timeout) {
-    interval = std::chrono::milliseconds(timeout);
+
+void Timer::SetTimeout(int timeout_) {
+    interval = std::chrono::milliseconds(timeout_);
+}
+
+void Timer::SetCallback(const std::function<void(int)> &func_) {
+    callback = std::move(func_);
 }

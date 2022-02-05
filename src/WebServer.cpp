@@ -4,12 +4,11 @@ WebServer::WebServer() {}
 
 WebServer::~WebServer() {
     close(sockfd);
-    for (auto &&cc : conn) close(cc.first);
 }
 
 void WebServer::Listen(uint16_t port) {
     int ret;
-    // 监听连接
+
     sockfd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
     if (sockfd == -1) throw std::runtime_error("server init error");
 
@@ -32,75 +31,101 @@ void WebServer::Listen(uint16_t port) {
     ret = listen(sockfd, MAX_FD);
     if (ret == -1) throw std::runtime_error("server listen error");
 
-    // 注册监听事件
-    loop.AddReadEvent(sockfd, [this] {
-        sockaddr_in temp;
-        socklen_t len = sizeof(temp);
-        // 建立新连接
-        int connfd = accept(this->sockfd, (sockaddr *)&temp, &len);
-        if (connfd == -1) throw std::runtime_error("client accept error");
-        printf("new connection!\n");
-        printf("sockfd is %d!\n", connfd);
-        // 处理新连接(初始化数据+注册超时/读事件)
-        this->conn[connfd].init(connfd, temp, &(this->loop));
-        printf("add timeout task!\n");
-        this->loop.AddTimeout(connfd, [connfd, this] {
-            this->loop.DeleteEvent(connfd);
-            if (close(connfd) < 0) return;
-            printf("%d is closed because of timeout\n", connfd);
-        });
-        printf("add read task!\n");
-        this->loop.AddReadEvent(connfd, [connfd, this] {
-            printf("read task!\n");
-            this->loop.UpdateTimeout(connfd);
-            // 拿到对应socket的req,res数据
-            Request &req = this->conn[connfd].GetRequest();
-            Response &res = this->conn[connfd].GetResponse();
-            // 按加入顺序过一遍中间件
-            for (auto r : this->router) {
-                r.init(req, res);
-            }
-            // 处理get or post请求
-            if (req.method() == HTTP_METHOD::GET) {
-                if (this->get.count(req.url())) {
-                    this->get[req.url()](req, res);
-                }
-            }
-            else if (req.method() == HTTP_METHOD::POST) {
-                if (this->post.count(req.url())) {
-                    this->post[req.url()](req, res);
-                }
-            }
-            // 重新激活epolloneshot
-            this->loop.RestartEvent(connfd);
-        });
-        printf("add write task!\n");
-        this->loop.AddWriteEvent(connfd, [connfd, this] {
-            printf("write task!\n");
-            this->conn[connfd].DealResponse();
-            this->loop.RestartEvent(connfd);
-        });
+    event = EPOLLONESHOT | EPOLLRDHUP;
+    loop.AddEvent(sockfd, EPOLLIN | EPOLLONESHOT);
 
-        printf("init client sucessfully!\n");
-        // 重新激活epolloneshot
-        this->loop.RestartEvent(this->sockfd);
+    loop.Set_AcceptCallBack(sockfd, [this] {
+        this->AcceptTask();
+    });
+    loop.Set_ReadCallBack([this](int fd_) {
+        this->ReadTask(fd_);
+    });
+    loop.Set_WriteCallBack([this](int fd_) {
+        this->WriteTask(fd_);
+    });
+    loop.Set_CloseCallBack([this](int fd_) {
+        this->CloseTask(fd_);
+    });
+    loop.Set_TimeoutCallBack([this](int fd_) {
+        this->TimeoutTask(fd_);
     });
 
     loop.SetTimeout(5000);
     loop.Loop();
 }
 
+void WebServer::AcceptTask() {
+    sockaddr_in temp;
+    socklen_t len = sizeof(temp);
+    int connfd = accept(sockfd, (sockaddr *)&temp, &len);
+    if (connfd == -1) throw std::runtime_error("client accept error");
+    // printf("new connection!\n");
+    // printf("sockfd is %d!\n", connfd);
+
+    conn[connfd].init(connfd, temp, &loop);
+    loop.AddEvent(connfd, EPOLLIN | event);
+    loop.ModEvent(sockfd, EPOLLIN | EPOLLONESHOT);
+}
+
+void WebServer::ReadTask(int fd_) {
+    // printf("read task!\n");
+
+    Request &req = conn[fd_].GetRequest();
+    Response &res = conn[fd_].GetResponse();
+    if (!conn[fd_].NeedClose()) loop.AddTimeoutTask(fd_);
+    for (auto r : router) {
+        r.init(req, res);
+    }
+
+    if (req.method() == HTTP_METHOD::GET) {
+        if (get.count(req.url())) {
+            get[req.url()](req, res);
+        }
+    }
+    else if (req.method() == HTTP_METHOD::POST) {
+        if (post.count(req.url())) {
+            post[req.url()](req, res);
+        }
+    }
+    
+    if (conn[fd_].NeedWrite()) {
+        loop.ModEvent(fd_, EPOLLOUT | event);
+    }
+}
+
+void WebServer::WriteTask(int fd_) {
+    // printf("write task!\n");
+    conn[fd_].DealResponse();
+    if (conn[fd_].NeedWrite()) {
+        loop.ModEvent(fd_, EPOLLOUT | event);
+    }
+    else {
+        if (conn[fd_].NeedClose()) {
+            conn.erase(fd_);
+        }
+        else {
+            loop.ModEvent(fd_, EPOLLIN | event);
+        }
+    }
+}
+
+void WebServer::CloseTask(int fd_) {
+    conn.erase(fd_);
+}
+
+void WebServer::TimeoutTask(int fd_) {
+    printf("%d is closed because of timeout\n", fd_);
+    conn.erase(fd_);
+}
+
 void WebServer::Use(const Router &r) {
-    // 加入中间件
     router.push_back(r);
 }
 
 void WebServer::Get(const std::string &url, const std::function<void(Request &, Response &)> &func) {
-    // get对应url的处理函数
     get[url] = func;
 }
 
 void WebServer::Post(const std::string &url, const std::function<void(Request &, Response &)> &func) {
-    // post对应url的处理函数
     post[url] = func;
 }

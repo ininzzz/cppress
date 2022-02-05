@@ -18,11 +18,18 @@
 class TCPConnection {
 public:
     TCPConnection();
+    ~TCPConnection();
     void init(int sockfd_, sockaddr_in sock_, EventLoop *loop_);
     Request &GetRequest();
     Response &GetResponse();
+    
+    bool NeedWrite();
+    bool NeedClose();
     void DealResponse();
 private:
+    void Close();
+    bool IsClosed();
+    bool is_closed;
     int sockfd;
     Request req;
     Response res;

@@ -19,6 +19,7 @@ public:
     std::string host() { return _host; }
     HTTP_METHOD method() { return _method; }
     HTTP_VERSION version() { return _version; }
+    HTTP_CONNECTION connection() { return _connection; }
 private:
     LINE_CODE CheckLine();
     void ParseLine();
