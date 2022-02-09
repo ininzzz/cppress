@@ -8,6 +8,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/cppress.dir/src/Request.cpp.o"
   "CMakeFiles/cppress.dir/src/Response.cpp.o"
   "CMakeFiles/cppress.dir/src/Router.cpp.o"
+  "CMakeFiles/cppress.dir/src/Socket.cpp.o"
   "CMakeFiles/cppress.dir/src/TCPConnection.cpp.o"
   "CMakeFiles/cppress.dir/src/ThreadPool.cpp.o"
   "CMakeFiles/cppress.dir/src/Timer.cpp.o"

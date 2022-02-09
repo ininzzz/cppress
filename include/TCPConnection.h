@@ -14,12 +14,18 @@
 #include"EventLoop.h"
 #include"Request.h"
 #include"Response.h"
+#include"Socket.h"
 
 class TCPConnection {
 public:
-    TCPConnection();
-    ~TCPConnection();
-    void init(int sockfd_, sockaddr_in sock_, EventLoop *loop_);
+    TCPConnection() = default;
+    TCPConnection(const TCPConnection &) = delete;
+    TCPConnection &operator=(const TCPConnection &) = delete;
+    TCPConnection(TCPConnection &&) = default;
+    TCPConnection &operator=(TCPConnection &&) = default;
+    ~TCPConnection() = default;
+    
+    void init(Socket sock_, EventLoop *loop_);
     Request &GetRequest();
     Response &GetResponse();
     
@@ -27,10 +33,7 @@ public:
     bool NeedClose();
     void DealResponse();
 private:
-    void Close();
-    bool IsClosed();
-    bool is_closed;
-    int sockfd;
+    Socket sock;
     Request req;
     Response res;
     EventLoop *loop;

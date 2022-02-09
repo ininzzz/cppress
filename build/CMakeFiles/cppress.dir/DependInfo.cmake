@@ -13,6 +13,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/ubuntu/express-cpp/src/Request.cpp" "/home/ubuntu/express-cpp/build/CMakeFiles/cppress.dir/src/Request.cpp.o"
   "/home/ubuntu/express-cpp/src/Response.cpp" "/home/ubuntu/express-cpp/build/CMakeFiles/cppress.dir/src/Response.cpp.o"
   "/home/ubuntu/express-cpp/src/Router.cpp" "/home/ubuntu/express-cpp/build/CMakeFiles/cppress.dir/src/Router.cpp.o"
+  "/home/ubuntu/express-cpp/src/Socket.cpp" "/home/ubuntu/express-cpp/build/CMakeFiles/cppress.dir/src/Socket.cpp.o"
   "/home/ubuntu/express-cpp/src/TCPConnection.cpp" "/home/ubuntu/express-cpp/build/CMakeFiles/cppress.dir/src/TCPConnection.cpp.o"
   "/home/ubuntu/express-cpp/src/ThreadPool.cpp" "/home/ubuntu/express-cpp/build/CMakeFiles/cppress.dir/src/ThreadPool.cpp.o"
   "/home/ubuntu/express-cpp/src/Timer.cpp" "/home/ubuntu/express-cpp/build/CMakeFiles/cppress.dir/src/Timer.cpp.o"

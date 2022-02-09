@@ -47,7 +47,6 @@ void EventLoop::Set_TimeoutCallBack(const std::function<void(int)> &func_) {
 }
 
 void EventLoop::Loop() {
-    pool.run();
     while (true) {
         timer.Handle();
         int len = epoll.Wait(timeout);
@@ -55,20 +54,19 @@ void EventLoop::Loop() {
             epoll_event now = epoll.Get(i);
             int fd = now.data.fd;
             if (now.events & EPOLLRDHUP) {
-                pool.append([this, fd] {
-                    this->close_callback(fd);
-                });
+                this->close_callback(fd);
             }
             else if (now.events & EPOLLIN) {
-                pool.append([this, fd] {
-                    if (fd == this->listenfd) {
+                if (fd == this->listenfd) {
+                    pool.append([this, fd] {
                         this->accept_callback();
-                    }
-                    else {
-                        timer.Update(fd);
+                    });
+                }
+                else {
+                    pool.append([this, fd] {
                         this->read_callback(fd);
-                    }
-                });
+                    });
+                }
             }
             else if (now.events & EPOLLOUT) {
                 pool.append([this, fd] {

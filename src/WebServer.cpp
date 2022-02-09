@@ -1,40 +1,16 @@
 #include"WebServer.h"
 
-WebServer::WebServer() {}
+WebServer::WebServer() :conn(MAX_FD) {}
 
-WebServer::~WebServer() {
-    close(sockfd);
-}
+WebServer::~WebServer() {}
 
 void WebServer::Listen(uint16_t port) {
-    int ret;
+    sock.listen(port);
 
-    sockfd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-    if (sockfd == -1) throw std::runtime_error("server init error");
+    event = EPOLLET | EPOLLRDHUP | EPOLLONESHOT;
+    loop.AddEvent(sock.get_fd(), EPOLLIN | EPOLLET | EPOLLONESHOT);
 
-    // linger linger_;
-    // linger_.l_onoff = 1;
-    // linger_.l_linger = 1;
-    // ret = setsockopt(sockfd, SOL_SOCKET, SO_LINGER, &linger_, sizeof(linger_));
-    // if (ret == -1) throw std::runtime_error("server linger error");
-
-    sockaddr_in sock;
-    memset(&sock, 0, sizeof(sock));
-    sock.sin_family = AF_INET;
-    // 0.0.0.0对公网开放，127.0.0.1是回环地址，只适用于本机测试
-    sock.sin_addr.s_addr = inet_addr("0.0.0.0");
-    sock.sin_port = htons(port);
-
-    ret = bind(sockfd, (sockaddr *)&sock, sizeof(sock));
-    if (ret == -1) throw std::runtime_error("server bind error");
-
-    ret = listen(sockfd, MAX_FD);
-    if (ret == -1) throw std::runtime_error("server listen error");
-
-    event = EPOLLONESHOT | EPOLLRDHUP;
-    loop.AddEvent(sockfd, EPOLLIN | EPOLLONESHOT);
-
-    loop.Set_AcceptCallBack(sockfd, [this] {
+    loop.Set_AcceptCallBack(sock.get_fd(), [this] {
         this->AcceptTask();
     });
     loop.Set_ReadCallBack([this](int fd_) {
@@ -55,26 +31,23 @@ void WebServer::Listen(uint16_t port) {
 }
 
 void WebServer::AcceptTask() {
-    sockaddr_in temp;
-    socklen_t len = sizeof(temp);
-    int connfd = accept(sockfd, (sockaddr *)&temp, &len);
-    if (connfd == -1) throw std::runtime_error("client accept error");
-    // printf("new connection!\n");
-    // printf("sockfd is %d!\n", connfd);
-
-    conn[connfd].init(connfd, temp, &loop);
-    loop.AddEvent(connfd, EPOLLIN | event);
-    loop.ModEvent(sockfd, EPOLLIN | EPOLLONESHOT);
+    Socket new_conn;
+    while ((new_conn = sock.accept()).fd != -1) {
+        printf("new connection! fd is %d\n", new_conn.fd);
+        conn[new_conn.fd].init(new_conn, &loop);
+        loop.AddEvent(new_conn.fd, EPOLLIN | event);
+    }
+    loop.ModEvent(sock.get_fd(), EPOLLIN | EPOLLET | EPOLLONESHOT);
 }
 
 void WebServer::ReadTask(int fd_) {
-    // printf("read task!\n");
+    printf("read task!\n");
 
     Request &req = conn[fd_].GetRequest();
     Response &res = conn[fd_].GetResponse();
-    if (!conn[fd_].NeedClose()) loop.AddTimeoutTask(fd_);
-    for (auto r : router) {
-        r.init(req, res);
+    
+    if (!conn[fd_].NeedClose()) {
+        loop.AddTimeoutTask(fd_);
     }
 
     if (req.method() == HTTP_METHOD::GET) {
@@ -89,19 +62,20 @@ void WebServer::ReadTask(int fd_) {
     }
     
     if (conn[fd_].NeedWrite()) {
+        // WriteTask(fd_);
         loop.ModEvent(fd_, EPOLLOUT | event);
     }
 }
 
 void WebServer::WriteTask(int fd_) {
-    // printf("write task!\n");
+    printf("write task!\n");
     conn[fd_].DealResponse();
     if (conn[fd_].NeedWrite()) {
         loop.ModEvent(fd_, EPOLLOUT | event);
     }
     else {
         if (conn[fd_].NeedClose()) {
-            conn.erase(fd_);
+            Close(fd_);
         }
         else {
             loop.ModEvent(fd_, EPOLLIN | event);
@@ -109,17 +83,21 @@ void WebServer::WriteTask(int fd_) {
     }
 }
 
+void WebServer::Close(int fd_) {
+    printf("%d is closed\n", fd_);
+    // conn.erase(fd_);
+    // conn[fd_].~TCPConnection();
+    loop.DeleteEvent(fd_);
+    ::close(fd_);
+}
+
 void WebServer::CloseTask(int fd_) {
-    conn.erase(fd_);
+    Close(fd_);
 }
 
 void WebServer::TimeoutTask(int fd_) {
-    printf("%d is closed because of timeout\n", fd_);
-    conn.erase(fd_);
-}
-
-void WebServer::Use(const Router &r) {
-    router.push_back(r);
+    // printf("%d is closed because of timeout\n", fd_);
+    Close(fd_);
 }
 
 void WebServer::Get(const std::string &url, const std::function<void(Request &, Response &)> &func) {

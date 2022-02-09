@@ -366,6 +366,33 @@ src/Router.cpp.s:
 	$(MAKE) -f CMakeFiles/cppress.dir/build.make CMakeFiles/cppress.dir/src/Router.cpp.s
 .PHONY : src/Router.cpp.s
 
+src/Socket.o: src/Socket.cpp.o
+
+.PHONY : src/Socket.o
+
+# target to build an object file
+src/Socket.cpp.o:
+	$(MAKE) -f CMakeFiles/cppress.dir/build.make CMakeFiles/cppress.dir/src/Socket.cpp.o
+.PHONY : src/Socket.cpp.o
+
+src/Socket.i: src/Socket.cpp.i
+
+.PHONY : src/Socket.i
+
+# target to preprocess a source file
+src/Socket.cpp.i:
+	$(MAKE) -f CMakeFiles/cppress.dir/build.make CMakeFiles/cppress.dir/src/Socket.cpp.i
+.PHONY : src/Socket.cpp.i
+
+src/Socket.s: src/Socket.cpp.s
+
+.PHONY : src/Socket.s
+
+# target to generate assembly for a file
+src/Socket.cpp.s:
+	$(MAKE) -f CMakeFiles/cppress.dir/build.make CMakeFiles/cppress.dir/src/Socket.cpp.s
+.PHONY : src/Socket.cpp.s
+
 src/TCPConnection.o: src/TCPConnection.cpp.o
 
 .PHONY : src/TCPConnection.o
@@ -510,6 +537,9 @@ help:
 	@echo "... src/Router.o"
 	@echo "... src/Router.i"
 	@echo "... src/Router.s"
+	@echo "... src/Socket.o"
+	@echo "... src/Socket.i"
+	@echo "... src/Socket.s"
 	@echo "... src/TCPConnection.o"
 	@echo "... src/TCPConnection.i"
 	@echo "... src/TCPConnection.s"

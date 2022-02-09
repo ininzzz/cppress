@@ -174,9 +174,22 @@ CMakeFiles/cppress.dir/src/Router.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cppress.dir/src/Router.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ubuntu/express-cpp/src/Router.cpp -o CMakeFiles/cppress.dir/src/Router.cpp.s
 
+CMakeFiles/cppress.dir/src/Socket.cpp.o: CMakeFiles/cppress.dir/flags.make
+CMakeFiles/cppress.dir/src/Socket.cpp.o: ../src/Socket.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/express-cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/cppress.dir/src/Socket.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cppress.dir/src/Socket.cpp.o -c /home/ubuntu/express-cpp/src/Socket.cpp
+
+CMakeFiles/cppress.dir/src/Socket.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/cppress.dir/src/Socket.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ubuntu/express-cpp/src/Socket.cpp > CMakeFiles/cppress.dir/src/Socket.cpp.i
+
+CMakeFiles/cppress.dir/src/Socket.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/cppress.dir/src/Socket.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ubuntu/express-cpp/src/Socket.cpp -o CMakeFiles/cppress.dir/src/Socket.cpp.s
+
 CMakeFiles/cppress.dir/src/TCPConnection.cpp.o: CMakeFiles/cppress.dir/flags.make
 CMakeFiles/cppress.dir/src/TCPConnection.cpp.o: ../src/TCPConnection.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/express-cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/cppress.dir/src/TCPConnection.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/express-cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/cppress.dir/src/TCPConnection.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cppress.dir/src/TCPConnection.cpp.o -c /home/ubuntu/express-cpp/src/TCPConnection.cpp
 
 CMakeFiles/cppress.dir/src/TCPConnection.cpp.i: cmake_force
@@ -189,7 +202,7 @@ CMakeFiles/cppress.dir/src/TCPConnection.cpp.s: cmake_force
 
 CMakeFiles/cppress.dir/src/ThreadPool.cpp.o: CMakeFiles/cppress.dir/flags.make
 CMakeFiles/cppress.dir/src/ThreadPool.cpp.o: ../src/ThreadPool.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/express-cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/cppress.dir/src/ThreadPool.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/express-cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/cppress.dir/src/ThreadPool.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cppress.dir/src/ThreadPool.cpp.o -c /home/ubuntu/express-cpp/src/ThreadPool.cpp
 
 CMakeFiles/cppress.dir/src/ThreadPool.cpp.i: cmake_force
@@ -202,7 +215,7 @@ CMakeFiles/cppress.dir/src/ThreadPool.cpp.s: cmake_force
 
 CMakeFiles/cppress.dir/src/Timer.cpp.o: CMakeFiles/cppress.dir/flags.make
 CMakeFiles/cppress.dir/src/Timer.cpp.o: ../src/Timer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/express-cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/cppress.dir/src/Timer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/express-cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/cppress.dir/src/Timer.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cppress.dir/src/Timer.cpp.o -c /home/ubuntu/express-cpp/src/Timer.cpp
 
 CMakeFiles/cppress.dir/src/Timer.cpp.i: cmake_force
@@ -215,7 +228,7 @@ CMakeFiles/cppress.dir/src/Timer.cpp.s: cmake_force
 
 CMakeFiles/cppress.dir/src/WebServer.cpp.o: CMakeFiles/cppress.dir/flags.make
 CMakeFiles/cppress.dir/src/WebServer.cpp.o: ../src/WebServer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/express-cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/cppress.dir/src/WebServer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/express-cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/cppress.dir/src/WebServer.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/cppress.dir/src/WebServer.cpp.o -c /home/ubuntu/express-cpp/src/WebServer.cpp
 
 CMakeFiles/cppress.dir/src/WebServer.cpp.i: cmake_force
@@ -237,6 +250,7 @@ cppress_OBJECTS = \
 "CMakeFiles/cppress.dir/src/Request.cpp.o" \
 "CMakeFiles/cppress.dir/src/Response.cpp.o" \
 "CMakeFiles/cppress.dir/src/Router.cpp.o" \
+"CMakeFiles/cppress.dir/src/Socket.cpp.o" \
 "CMakeFiles/cppress.dir/src/TCPConnection.cpp.o" \
 "CMakeFiles/cppress.dir/src/ThreadPool.cpp.o" \
 "CMakeFiles/cppress.dir/src/Timer.cpp.o" \
@@ -254,13 +268,14 @@ cppress: CMakeFiles/cppress.dir/src/HttpParser.cpp.o
 cppress: CMakeFiles/cppress.dir/src/Request.cpp.o
 cppress: CMakeFiles/cppress.dir/src/Response.cpp.o
 cppress: CMakeFiles/cppress.dir/src/Router.cpp.o
+cppress: CMakeFiles/cppress.dir/src/Socket.cpp.o
 cppress: CMakeFiles/cppress.dir/src/TCPConnection.cpp.o
 cppress: CMakeFiles/cppress.dir/src/ThreadPool.cpp.o
 cppress: CMakeFiles/cppress.dir/src/Timer.cpp.o
 cppress: CMakeFiles/cppress.dir/src/WebServer.cpp.o
 cppress: CMakeFiles/cppress.dir/build.make
 cppress: CMakeFiles/cppress.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ubuntu/express-cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Linking CXX executable cppress"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ubuntu/express-cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Linking CXX executable cppress"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/cppress.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

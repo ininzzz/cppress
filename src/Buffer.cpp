@@ -36,8 +36,7 @@ int Buffer::ReadFrom(int fd) {
     iov[1].iov_base = buffer;
     iov[1].iov_len = sizeof(buffer);
     int len = readv(fd, iov, 2);
-    // if (len < 0) throw std::runtime_error("Buffer Read error\n");
-    if (len < 0) return -1;
+    if (len < 0) throw std::runtime_error("Buffer Read error\n");
     if (len > Writeable()) {
         wpos += Writeable();
         buffer[len - Writeable()] = '\0';

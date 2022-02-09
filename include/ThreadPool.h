@@ -14,8 +14,6 @@ class ThreadPool {
 public:
     ThreadPool(int num = maxn);
     void append(std::function<void()> task);
-    void run();
-    void clear();
     ~ThreadPool();
 private:
     std::vector<std::thread> threads;

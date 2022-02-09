@@ -10,6 +10,7 @@ CMakeFiles/cppress.dir/main.cpp.o
  ../include/Request.h
  ../include/Response.h
  ../include/Router.h
+ ../include/Socket.h
  ../include/TCPConnection.h
  ../include/ThreadPool.h
  ../include/Timer.h
@@ -61,6 +62,9 @@ CMakeFiles/cppress.dir/src/Router.cpp.o
  ../include/ThreadPool.h
  ../include/Timer.h
  /home/ubuntu/express-cpp/src/Router.cpp
+CMakeFiles/cppress.dir/src/Socket.cpp.o
+ ../include/Socket.h
+ /home/ubuntu/express-cpp/src/Socket.cpp
 CMakeFiles/cppress.dir/src/TCPConnection.cpp.o
  ../include/Buffer.h
  ../include/Epoller.h
@@ -69,6 +73,7 @@ CMakeFiles/cppress.dir/src/TCPConnection.cpp.o
  ../include/HttpParser.h
  ../include/Request.h
  ../include/Response.h
+ ../include/Socket.h
  ../include/TCPConnection.h
  ../include/ThreadPool.h
  ../include/Timer.h
@@ -88,6 +93,7 @@ CMakeFiles/cppress.dir/src/WebServer.cpp.o
  ../include/Request.h
  ../include/Response.h
  ../include/Router.h
+ ../include/Socket.h
  ../include/TCPConnection.h
  ../include/ThreadPool.h
  ../include/Timer.h

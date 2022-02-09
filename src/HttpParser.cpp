@@ -11,9 +11,11 @@ void HttpParser::Init() {
 
 void HttpParser::Append(const std::string &str) {
     req.append(str);
+    // printf("%s", str.c_str());
 }
 
 HTTP_CODE HttpParser::Parse() {
+    printf("parsing...\n");
     LINE_CODE ret;
     while (((ret = CheckLine()) == LINE_CODE::LINE_OK) || (status == HTTP_CODE::DONE || status == HTTP_CODE::ERROR)) {
         switch (status) {
@@ -30,6 +32,7 @@ HTTP_CODE HttpParser::Parse() {
             break;
         }
         case HTTP_CODE::DONE: {
+            printf("parse done\n");
             if (check == req.size()) req.clear();
             else req.assign(req.begin() + check, req.end());
             start = check = 0;
@@ -38,8 +41,6 @@ HTTP_CODE HttpParser::Parse() {
             break;
         }
         case HTTP_CODE::ERROR: {
-            if (check == req.size()) req.clear();
-            else req.assign(req.begin() + check, req.end());
             start = check = 0;
             req.clear();
             status = HTTP_CODE::LINE;
