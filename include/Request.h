@@ -15,9 +15,11 @@ public:
     HTTP_METHOD method() { return parser.method(); }
     HTTP_VERSION version() { return parser.version(); }
     HTTP_CONNECTION connection() { return parser.connection(); }
+    std::string body() { return parser.body(); }
 private:
     friend class TCPConnection;
-    HTTP_CODE ReadFrom();
+    HTTP_CODE get();
+    void clear();
 
     int sockfd;
     Buffer buf;

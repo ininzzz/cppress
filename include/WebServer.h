@@ -27,18 +27,18 @@ public:
     void Post(const std::string &url, const std::function<void(Request&, Response&)> &func = nullptr);
     ~WebServer();
 private:
+    // 回调函数
     void AcceptTask();
     void ReadTask(int fd_);
     void WriteTask(int fd_);
     void CloseTask(int fd_);
     void TimeoutTask(int fd_);
-    void Close(int fd_);
-    // int sockfd;
+    // 关闭连接
+    void CloseTCPConnection(int fd_);
     ServerSocket sock;
     uint32_t event;
     EventLoop loop;
     std::unordered_map<std::string, std::function<void(Request&, Response&)>> get, post;
-    // std::map<int, TCPConnection > conn;
     std::vector<TCPConnection> conn;
 };
 

@@ -55,5 +55,6 @@
         "cstring": "cpp",
         "iomanip": "cpp",
         "list": "cpp"
-    }
+    },
+    "sqltools.connections": []
 }

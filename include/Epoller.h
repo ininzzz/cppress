@@ -13,7 +13,7 @@
 #include<sys/epoll.h>
 #include<unistd.h>
 
-const int MAX_FD = 4096;
+const int MAX_FD = 8192*4;
 
 class Epoller {
 public:

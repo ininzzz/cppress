@@ -1,6 +1,6 @@
 #include"Timer.h"
 
-Timer::Timer():save(4096) {}
+Timer::Timer():save(8192*4) {}
 
 void Timer::Insert(int fd_) {
     if (std::chrono::high_resolution_clock::to_time_t(save[fd_]) > 0) Erase(fd_);

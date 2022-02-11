@@ -26,17 +26,26 @@ public:
     ~TCPConnection() = default;
     
     void init(Socket sock_, EventLoop *loop_);
+    void clear();
     Request &GetRequest();
     Response &GetResponse();
+
+    bool ValidRequest() { return valid_request; }
+    bool NeedRead() { return need_read; }
+    bool NeedWrite() { return res.need_write; }
+    bool NeedClose() { return need_close; }
     
-    bool NeedWrite();
-    bool NeedClose();
     void DealResponse();
 private:
     Socket sock;
     Request req;
     Response res;
     EventLoop *loop;
+
+    // check
+    bool valid_request;
+    bool need_read;
+    bool need_close;
 };
 
 

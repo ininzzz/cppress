@@ -45,10 +45,10 @@ void WebServer::ReadTask(int fd_) {
 
     Request &req = conn[fd_].GetRequest();
     Response &res = conn[fd_].GetResponse();
-    
-    if (!conn[fd_].NeedClose()) {
-        loop.AddTimeoutTask(fd_);
-    }
+    if (!conn[fd_].ValidRequest()) return;
+
+    if (!conn[fd_].NeedClose()) loop.AddTimeoutTask(fd_);
+    else loop.EraseFromTimer(fd_);
 
     if (req.method() == HTTP_METHOD::GET) {
         if (get.count(req.url())) {
@@ -61,10 +61,8 @@ void WebServer::ReadTask(int fd_) {
         }
     }
     
-    if (conn[fd_].NeedWrite()) {
-        // WriteTask(fd_);
-        loop.ModEvent(fd_, EPOLLOUT | event);
-    }
+    if (conn[fd_].NeedWrite()) loop.ModEvent(fd_, EPOLLOUT | event);
+    else loop.ModEvent(fd_, EPOLLIN | event);
 }
 
 void WebServer::WriteTask(int fd_) {
@@ -75,29 +73,34 @@ void WebServer::WriteTask(int fd_) {
     }
     else {
         if (conn[fd_].NeedClose()) {
-            Close(fd_);
+            CloseTCPConnection(fd_);
         }
         else {
-            loop.ModEvent(fd_, EPOLLIN | event);
+            if (conn[fd_].NeedRead()) {
+                ReadTask(fd_);
+            }
+            else {
+                loop.ModEvent(fd_, EPOLLIN | event);
+            }
         }
     }
 }
 
-void WebServer::Close(int fd_) {
+void WebServer::CloseTCPConnection(int fd_) {
     printf("%d is closed\n", fd_);
-    // conn.erase(fd_);
-    // conn[fd_].~TCPConnection();
     loop.DeleteEvent(fd_);
+    loop.EraseFromTimer(fd_);
+    conn[fd_].clear();
     ::close(fd_);
 }
 
 void WebServer::CloseTask(int fd_) {
-    Close(fd_);
+    CloseTCPConnection(fd_);
 }
 
 void WebServer::TimeoutTask(int fd_) {
     // printf("%d is closed because of timeout\n", fd_);
-    Close(fd_);
+    CloseTCPConnection(fd_);
 }
 
 void WebServer::Get(const std::string &url, const std::function<void(Request &, Response &)> &func) {

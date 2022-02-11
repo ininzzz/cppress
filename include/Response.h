@@ -12,11 +12,10 @@ public:
     void SetContentType(HTTP_CONTENT_TYPE type_);
 private:
     friend class TCPConnection;
-    void Init(EventLoop *loop_);
-    void SendTo();
+    void send();
+    void clear();
     int sockfd;
     Buffer buf;
-    EventLoop *loop;
 
     HTTP_STATUS status;
     HTTP_CONTENT_TYPE type;

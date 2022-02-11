@@ -2,6 +2,9 @@
 
 EventLoop::EventLoop() {}
 
+
+// 注册事件
+
 void EventLoop::AddEvent(int fd_, uint32_t event_) {
     epoll.Add(fd_, event_);
 }
@@ -12,8 +15,14 @@ void EventLoop::ModEvent(int fd_, uint32_t event_) {
 
 void EventLoop::DeleteEvent(int fd_) {
     epoll.Del(fd_);
-    timer.Erase(fd_);
 }
+
+
+
+
+
+
+// 设置定时器
 
 void EventLoop::SetTimeout(int timeout_) {
     timer.SetTimeout(timeout_);
@@ -24,6 +33,17 @@ void EventLoop::AddTimeoutTask(int fd_) {
     timer.Insert(fd_);
 }
 
+void EventLoop::EraseFromTimer(int fd_) {
+    timer.Erase(fd_);
+}
+
+
+
+
+
+
+
+// 设置回调函数
 
 void EventLoop::Set_AcceptCallBack(int fd_, const std::function<void()> &func_) {
     listenfd = fd_;
@@ -45,6 +65,13 @@ void EventLoop::Set_CloseCallBack(const std::function<void(int)> &func_) {
 void EventLoop::Set_TimeoutCallBack(const std::function<void(int)> &func_) {
     timer.SetCallback(func_);
 }
+
+
+
+
+
+
+
 
 void EventLoop::Loop() {
     while (true) {
