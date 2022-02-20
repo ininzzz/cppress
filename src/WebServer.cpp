@@ -1,112 +1,115 @@
 #include"WebServer.h"
 
-WebServer::WebServer() :conn(MAX_FD) {}
+WebServer::WebServer()
+    :loop(new EventLoop),sock(new ServerSocket) {
+    for (int i = 0;i < MAX_FD;i++) {
+        conn.push_back(TCPConnection::ptr(new TCPConnection(i)));
+    }
+}
 
 WebServer::~WebServer() {}
 
-void WebServer::Listen(uint16_t port) {
-    sock.listen(port);
-
+void WebServer::listen(uint16_t port) {
+    sock->listen(port);
+    
     event = EPOLLET | EPOLLRDHUP | EPOLLONESHOT;
-    loop.AddEvent(sock.get_fd(), EPOLLIN | EPOLLET | EPOLLONESHOT);
-
-    loop.Set_AcceptCallBack(sock.get_fd(), [this] {
-        this->AcceptTask();
+    loop->addEvent(sock->get_fd(), EPOLLIN | EPOLLET | EPOLLONESHOT);
+    
+    loop->setAcceptCallBack(sock->get_fd(), [this] {
+        this->acceptTask();
     });
-    loop.Set_ReadCallBack([this](int fd_) {
-        this->ReadTask(fd_);
+    loop->setReadCallBack([this](int fd_) {
+        this->readTask(fd_);
     });
-    loop.Set_WriteCallBack([this](int fd_) {
-        this->WriteTask(fd_);
+    loop->setWriteCallBack([this](int fd_) {
+        this->writeTask(fd_);
     });
-    loop.Set_CloseCallBack([this](int fd_) {
-        this->CloseTask(fd_);
+    loop->setCloseCallBack([this](int fd_) {
+        this->closeTask(fd_);
     });
-    loop.Set_TimeoutCallBack([this](int fd_) {
-        this->TimeoutTask(fd_);
+    loop->setTimeoutCallBack([this](int fd_) {
+        this->timeoutTask(fd_);
     });
-
-    loop.SetTimeout(5000);
-    loop.Loop();
+    
+    loop->setTimeout(5000);
+    loop->loop();
 }
 
-void WebServer::AcceptTask() {
+void WebServer::acceptTask() {
     Socket new_conn;
-    while ((new_conn = sock.accept()).fd != -1) {
+    while ((new_conn = sock->accept()).fd != -1) {
         printf("new connection! fd is %d\n", new_conn.fd);
-        conn[new_conn.fd].init(new_conn, &loop);
-        loop.AddEvent(new_conn.fd, EPOLLIN | event);
+        loop->addEvent(new_conn.fd, EPOLLIN | event);
     }
-    loop.ModEvent(sock.get_fd(), EPOLLIN | EPOLLET | EPOLLONESHOT);
+    loop->modEvent(sock->get_fd(), EPOLLIN | EPOLLET | EPOLLONESHOT);
 }
 
-void WebServer::ReadTask(int fd_) {
+void WebServer::readTask(int fd_) {
     printf("read task!\n");
 
-    Request &req = conn[fd_].GetRequest();
-    Response &res = conn[fd_].GetResponse();
-    if (!conn[fd_].ValidRequest()) return;
+    HttpRequest &req = conn[fd_]->getRequest();
+    HttpResponse &res = conn[fd_]->getResponse();
+    if (!conn[fd_]->validRequest()) return;
 
-    if (!conn[fd_].NeedClose()) loop.AddTimeoutTask(fd_);
-    else loop.EraseFromTimer(fd_);
+    if (!conn[fd_]->needClose()) loop->addTimeoutTask(fd_);
+    else loop->eraseFromTimer(fd_);
 
-    if (req.method() == HTTP_METHOD::GET) {
-        if (get.count(req.url())) {
-            get[req.url()](req, res);
+    if (req.method() == HttpMethod::GET) {
+        if (m_get.count(req.path())) {
+            m_get[req.path()](req, res);
         }
     }
-    else if (req.method() == HTTP_METHOD::POST) {
-        if (post.count(req.url())) {
-            post[req.url()](req, res);
+    else if (req.method() == HttpMethod::POST) {
+        if (m_post.count(req.path())) {
+            m_post[req.path()](req, res);
         }
     }
-    
-    if (conn[fd_].NeedWrite()) loop.ModEvent(fd_, EPOLLOUT | event);
-    else loop.ModEvent(fd_, EPOLLIN | event);
+    if (conn[fd_]->needWrite()) loop->modEvent(fd_, EPOLLOUT | event);
+    else loop->modEvent(fd_, EPOLLIN | event);
 }
 
-void WebServer::WriteTask(int fd_) {
+void WebServer::writeTask(int fd_) {
     printf("write task!\n");
-    conn[fd_].DealResponse();
-    if (conn[fd_].NeedWrite()) {
-        loop.ModEvent(fd_, EPOLLOUT | event);
+    conn[fd_]->dealResponse();
+    if (conn[fd_]->needWrite()) {
+        loop->modEvent(fd_, EPOLLOUT | event);
     }
     else {
-        if (conn[fd_].NeedClose()) {
-            CloseTCPConnection(fd_);
+        if (conn[fd_]->needClose()) {
+            closeTCPConnection(fd_);
         }
         else {
-            if (conn[fd_].NeedRead()) {
-                ReadTask(fd_);
+            if (conn[fd_]->needRead()) {
+                readTask(fd_);
             }
             else {
-                loop.ModEvent(fd_, EPOLLIN | event);
+                loop->modEvent(fd_, EPOLLIN | event);
             }
         }
     }
 }
 
-void WebServer::CloseTCPConnection(int fd_) {
+void WebServer::closeTCPConnection(int fd_) {
     printf("%d is closed\n", fd_);
-    loop.DeleteEvent(fd_);
-    loop.EraseFromTimer(fd_);
-    conn[fd_].clear();
+    loop->delEvent(fd_);
+    loop->eraseFromTimer(fd_);
+    conn[fd_]->clear();
     ::close(fd_);
 }
 
-void WebServer::CloseTask(int fd_) {
-    CloseTCPConnection(fd_);
+void WebServer::closeTask(int fd_) {
+    closeTCPConnection(fd_);
 }
 
-void WebServer::TimeoutTask(int fd_) {
+void WebServer::timeoutTask(int fd_) {
     // printf("%d is closed because of timeout\n", fd_);
-    CloseTCPConnection(fd_);
+    closeTCPConnection(fd_);
 }
 
-void WebServer::Get(const std::string &url, const std::function<void(Request &, Response &)> &func) {
-    get[url] = func;
+void WebServer::get(const std::string &url, const std::function<void(HttpRequest &, HttpResponse &)> &func) {
+    m_get[url] = func;
 }
 
-void WebServer::Post(const std::string &url, const std::function<void(Request &, Response &)> &func) {
-    post[url] = func;
+void WebServer::post(const std::string &url, const std::function<void(HttpRequest &, HttpResponse &)> &func) {
+    m_post[url] = func;
 }

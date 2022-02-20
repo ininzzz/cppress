@@ -7,6 +7,7 @@
 #include<vector>
 #include<iostream>
 #include<functional>
+#include<memory>
 
 struct TimerNode {
     int fd;
@@ -18,6 +19,8 @@ struct TimerNode {
 
 class Timer {
 public:
+    using ptr = std::shared_ptr<Timer>;
+    
     Timer();
     Timer(const Timer &) = delete;
     Timer &operator=(const Timer &) = delete;
@@ -25,12 +28,12 @@ public:
     Timer &operator=(Timer &&) = default;
     ~Timer() = default;
     
-    void Insert(int fd_);
-    void Erase(int fd_);
-    void Update(int fd_);
-    void Handle();
-    void SetTimeout(int timeout_);
-    void SetCallback(const std::function<void(int)> &func_);
+    void insert(int fd_);
+    void erase(int fd_);
+    void update(int fd_);
+    void handle();
+    void setTimeout(int timeout_);
+    void setCallback(const std::function<void(int)> &func_);
 private:
     std::priority_queue<TimerNode, std::vector<TimerNode>, std::greater<TimerNode>> que;
     std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>> save;

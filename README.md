@@ -4,19 +4,15 @@
 
 - IO复用epoll+非阻塞socket+线程池的Reactor并发模型
 
-- EPOLLONESHOT确保每个socket只被一个线程处理
-
 - 有限状态机解析Http请求报文
 
-- 自动增长的缓冲区确保数据的正常收发
+- 参考内存分页机制实现的链式缓冲区
 
 - 优先队列(最小堆)实现定时器，定时检查并断开不活跃的连接
 
 - 类Log4j风格的同步日志
 
-- TODO：json解析，代码优化
-
-- 目前只是个半成品，还在慢慢完善/(ㄒoㄒ)/~~
+- TODO：JSON解析，代码优化和异常处理
 
   ```cpp
   #include<iostream>
@@ -24,26 +20,23 @@
   #include"WebServer.h"
   
   int main() {
-      WebServer server;
-      server.Get("/", [](Request &req, Response &res) {
-          std::cout << req.ip() << " " << req.port() << std::endl;
-          std::cout << req.method() << std::endl;
-          std::cout << req.url() << std::endl;
-          std::cout << req.version() << std::endl;
-          std::cout << req.host() << std::endl;
-  
-          res.Send("fuck you");
+      WebServer::ptr server(new WebServer);
+      server->get("/", [](HttpRequest &req, HttpResponse &res) {
+          std::cout << toString(req.method()) << std::endl;
+          std::cout << req.path() << std::endl;
+          std::cout << toString(req.version()) << std::endl;
+          std::cout << req.getHeader("Connection") << std::endl;
+          res.send("fuck you");
       });
-      server.Post("/", [](Request &req, Response &res) {
-          std::cout << req.ip() << " " << req.port() << std::endl;
-          std::cout << req.method() << std::endl;
-          std::cout << req.url() << std::endl;
-          std::cout << req.version() << std::endl;
-          std::cout << req.host() << std::endl;
-  
-          res.Send("fuck you");
+      server->post("/", [](HttpRequest &req, HttpResponse &res) {
+          std::cout << toString(req.method()) << std::endl;
+          std::cout << req.path() << std::endl;
+          std::cout << toString(req.version()) << std::endl;
+          std::cout << req.getHeader("Connection") << std::endl;
+          res.send("fuck you");
       });
-      server.Listen(12345);
+      server->listen(12345);
+  
       return 0;
   }
   ```

@@ -13,7 +13,8 @@ TARGET_LINK_LIBRARIES(cppress ${CMAKE_THREAD_LIBS_INIT})
 # link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 # set(LIB_SRC
-#     src/Log.cpp
+#     src/Buffer.cpp
+#     src/HttpRequest.cpp
 # )
 
 # add_library(cppress SHARED ${LIB_SRC})

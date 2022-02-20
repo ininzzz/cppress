@@ -6,25 +6,37 @@
 #include<vector>
 #include<string>
 #include<functional>
+#include<list>
+#include<memory>
+#include<cstring>
 #include<unistd.h>
 
 class Buffer {
 public:
-    Buffer();
+    using ptr = std::shared_ptr<Buffer>;
     
-    int ReadFrom(int fd);
-    std::string GetBuf();
+    Buffer() :m_size(0) {}
     
-    int WriteTo(int fd);
-    void Append(const std::string &str);
+    void readFrom(int fd);
+    void writeTo(int fd);
+
+    void append(const std::string &str);
     
-    void Clear();
-    int Readable();
-    int Writeable();
+    char front();
+    void pop();
+    
+    int size() { return m_size; }
+    bool empty() { return m_size == 0; }
+    void clear() { m_buffer.clear(); }
 private:
-    void EnsureSpace(int len);
-    std::vector<char> buf;
-    int rpos, wpos;
+    static const int page_size = 4096;
+    struct page {
+        page() :rpos(0), wpos(0) {}
+        char buf[page_size];
+        int rpos, wpos;
+    };
+    std::list<page> m_buffer;
+    int m_size;
 };
 
 

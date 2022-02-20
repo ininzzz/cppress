@@ -7,6 +7,7 @@
 #include<netinet/in.h>
 #include<arpa/inet.h>
 #include<string>
+#include<memory>
 #include<functional>
 
 struct Socket {
@@ -16,6 +17,7 @@ struct Socket {
 
 class ServerSocket {
 public:
+    using ptr = std::shared_ptr<ServerSocket>;
     ServerSocket() = default;
     ServerSocket(const ServerSocket &) = delete;
     ServerSocket &operator=(const ServerSocket &) = delete;

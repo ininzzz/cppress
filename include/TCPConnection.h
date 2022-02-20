@@ -11,41 +11,33 @@
 #include<vector>
 #include<map>
 
-#include"EventLoop.h"
-#include"Request.h"
-#include"Response.h"
+#include"HttpRequest.h"
+#include"HttpResponse.h"
 #include"Socket.h"
 
 class TCPConnection {
 public:
-    TCPConnection() = default;
-    TCPConnection(const TCPConnection &) = delete;
-    TCPConnection &operator=(const TCPConnection &) = delete;
-    TCPConnection(TCPConnection &&) = default;
-    TCPConnection &operator=(TCPConnection &&) = default;
-    ~TCPConnection() = default;
+    using ptr = std::shared_ptr<TCPConnection>;
     
-    void init(Socket sock_, EventLoop *loop_);
+    TCPConnection(int fd)
+        :m_req(new HttpRequest(fd)), m_res(new HttpResponse(fd)), m_fd(fd) {
+    }
+
     void clear();
-    Request &GetRequest();
-    Response &GetResponse();
+    HttpRequest &getRequest();
+    HttpResponse &getResponse();
 
-    bool ValidRequest() { return valid_request; }
-    bool NeedRead() { return need_read; }
-    bool NeedWrite() { return res.need_write; }
-    bool NeedClose() { return need_close; }
-    
-    void DealResponse();
+    bool needClose() { return m_req->isclose(); }
+    bool needRead() { return m_req->m_buffer->size() > 0; }
+    bool needWrite() { return m_res->m_buffer->size() > 0; }
+    bool validRequest() { return isvaild; }
+    void dealResponse() { m_res->send(); }
+
 private:
-    Socket sock;
-    Request req;
-    Response res;
-    EventLoop *loop;
-
-    // check
-    bool valid_request;
-    bool need_read;
-    bool need_close;
+    int m_fd;
+    HttpRequest::ptr m_req;
+    HttpResponse::ptr m_res;
+    bool isvaild = false;
 };
 
 

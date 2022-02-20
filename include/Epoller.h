@@ -10,27 +10,28 @@
 #include<functional>
 #include<map>
 #include<set>
+#include<memory>
 #include<sys/epoll.h>
 #include<unistd.h>
 
-const int MAX_FD = 8192*4;
+const int MAX_FD = 8192;
 
 class Epoller {
 public:
+    using ptr = std::shared_ptr<Epoller>;
     Epoller();
     Epoller(const Epoller &) = delete;
     Epoller &operator=(const Epoller &) = delete;
     Epoller(Epoller &&) = default;
     Epoller &operator=(Epoller &&) = default;
-    ~Epoller();
+    ~Epoller() { ::close(epollfd); }
     
-    void Add(int fd_, uint32_t events_);
-    void Mod(int fd_, uint32_t events_);
-    void Del(int fd_);
-    
-    epoll_event &Get(int id_);
-    int Wait(int timeout_);
-    
+    void add(int fd_, uint32_t events_);
+    void mod(int fd_, uint32_t events_);
+    void del(int fd_);
+    int wait(int timeout_);
+
+    epoll_event &get(int id_) { return revents[id_]; }    
 private:
     int epollfd;
     epoll_event revents[MAX_FD];

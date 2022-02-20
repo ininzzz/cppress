@@ -1,6 +1,7 @@
 #ifndef EVENTLOOP_H
 #define EVENTLOOP_H
 #include<map>
+#include<memory>
 
 #include"ThreadPool.h"
 #include"Epoller.h"
@@ -9,6 +10,8 @@
 
 class EventLoop {
 public:
+    using ptr = std::shared_ptr<EventLoop>;
+    
     EventLoop();
     EventLoop(const EventLoop &) = delete;
     EventLoop &operator=(const EventLoop &) = delete;
@@ -17,31 +20,31 @@ public:
     ~EventLoop() = default;
 
     // 注册事件
-    void AddEvent(int fd_, uint32_t event_);
-    void ModEvent(int fd_, uint32_t event_);
-    void DeleteEvent(int fd_);
+    void addEvent(int fd_, uint32_t event_) { epoll->add(fd_, event_); }
+    void modEvent(int fd_, uint32_t event_) { epoll->mod(fd_, event_); }
+    void delEvent(int fd_) { epoll->del(fd_); }
 
     // 设置回调函数
-    void Set_AcceptCallBack(int fd_, const std::function<void()> &func_);
-    void Set_ReadCallBack(const std::function<void(int)> &func_);
-    void Set_WriteCallBack(const std::function<void(int)> &func_);
-    void Set_CloseCallBack(const std::function<void(int)> &func_);
-    void Set_TimeoutCallBack(const std::function<void(int)> &func_);
+    void setAcceptCallBack(int fd_, const std::function<void()> &func_);
+    void setReadCallBack(const std::function<void(int)> &func_);
+    void setWriteCallBack(const std::function<void(int)> &func_);
+    void setCloseCallBack(const std::function<void(int)> &func_);
+    void setTimeoutCallBack(const std::function<void(int)> &func_);
 
     // 事件循环
-    void Loop();
+    void loop();
     
     // 设置定时器
-    void SetTimeout(int timeout_);
-    void AddTimeoutTask(int fd_);
-    void EraseFromTimer(int fd_);
+    void setTimeout(int timeout_);
+    void addTimeoutTask(int fd_);
+    void eraseFromTimer(int fd_);
 private:
     // 线程池
-    ThreadPool pool;
+    ThreadPool::ptr pool;
     // epoll
-    Epoller epoll;
+    Epoller::ptr epoll;
     // 定时器
-    Timer timer;
+    Timer::ptr timer;
     int timeout;
     // 回调函数
     int listenfd;

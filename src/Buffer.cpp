@@ -1,68 +1,53 @@
 #include"Buffer.h"
 
-Buffer::Buffer() :rpos(0), wpos(0) {}
-
-int Buffer::Readable() {
-    return wpos - rpos;
-}
-
-int Buffer::Writeable() {
-    return buf.size() - wpos;
-}
-
-void Buffer::Append(const std::string &str) {
-    int len = str.size();
-    if (len > Writeable()) EnsureSpace(len);
-    std::copy(str.begin(), str.end(), buf.begin() + wpos);
-    wpos += len;
-}
-
-void Buffer::EnsureSpace(int len) {
-    if (rpos + Writeable() >= len) {
-        int readable_temp = Readable();
-        std::copy(buf.begin() + rpos, buf.begin() + wpos, buf.begin());
-        rpos = 0, wpos = rpos + readable_temp;
-    }
-    else {
-        buf.resize(wpos + len);
+void Buffer::append(const std::string &str) {
+    for (auto &c : str) {
+        if (!m_buffer.size() || m_buffer.back().wpos == page_size - 1) {
+            m_buffer.emplace_back();
+        }
+        m_buffer.back().buf[m_buffer.back().wpos++] = c;
+        m_size++;
     }
 }
 
-int Buffer::ReadFrom(int fd) {
-    char buffer[65536];
-    iovec iov[2];
-    iov[0].iov_base = &buf[0] + wpos;
-    iov[0].iov_len = Writeable();
-    iov[1].iov_base = buffer;
-    iov[1].iov_len = sizeof(buffer);
-    int len = readv(fd, iov, 2);
-    if (len < 0) return len;
-    if (len > Writeable()) {
-        wpos += Writeable();
-        buffer[len - Writeable()] = '\0';
-        Append(buffer);
+void Buffer::readFrom(int fd) {
+    char buf[page_size];
+    int len = 0;
+    while ((len = ::read(fd, buf, sizeof(buf) - 1)) > 0) {
+        buf[len] = '\0';
+        this->append(buf);
     }
-    else {
-        wpos += len;
+    
+}
+
+void Buffer::writeTo(int fd) {
+    char buf[page_size];
+    while (!m_buffer.empty()) {
+        int buf_cnt = 0;
+        for (int i = 0;i < m_buffer.front().wpos;i++) {
+            buf[buf_cnt++] = m_buffer.front().buf[m_buffer.front().rpos++];
+            m_size--;
+        }
+        buf[buf_cnt] = '\0';
+        ::write(fd, buf, buf_cnt);
+        m_buffer.pop_front();
     }
-    return len;
 }
 
-int Buffer::WriteTo(int fd) {
-    int readable_len = Readable();
-    int len = write(fd, &buf[0] + rpos, readable_len);
-    if (len < 0) throw std::runtime_error("Buffer Write error\n");
-    rpos += len;
-    return len;
+char Buffer::front() {
+    return m_buffer.front().buf[m_buffer.front().rpos];
 }
 
-std::string Buffer::GetBuf() {
-    std::string str(&buf[0] + rpos, Readable());
-    rpos = 0, wpos = 0;
-    return str;
+void Buffer::pop() {
+    if (!this->size()) throw std::runtime_error("Buffer pop error");
+    m_buffer.front().rpos++;
+    m_size--;
+    if (m_buffer.front().rpos == m_buffer.front().wpos) {
+        m_buffer.pop_front();
+    }
 }
 
-void Buffer::Clear() {
-    rpos = 0;
-    wpos = 0;
-}
+
+
+
+

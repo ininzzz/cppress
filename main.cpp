@@ -1,29 +1,23 @@
 #include<iostream>
-
 #include"WebServer.h"
 
 int main() {
-    WebServer server;
-    server.Get("/", [](Request &req, Response &res) {
-        // std::cout << req.ip() << " " << req.port() << std::endl;
-        // std::cout << req.method() << std::endl;
-        // std::cout << req.url() << std::endl;
-        // std::cout << req.version() << std::endl;
-        // std::cout << req.host() << std::endl;
-        res.SetStatus(HTTP_STATUS::OK);
-        res.SetContentType(HTTP_CONTENT_TYPE::TEXT_HTML);
-        res.Send("fuck you");
+    WebServer::ptr server(new WebServer);
+    server->get("/", [](HttpRequest &req, HttpResponse &res) {
+        std::cout << toString(req.method()) << std::endl;
+        std::cout << req.path() << std::endl;
+        std::cout << toString(req.version()) << std::endl;
+        std::cout << req.getHeader("Connection") << std::endl;
+        res.send("fuck you");
     });
-    server.Post("/", [](Request &req, Response &res) {
-        // std::cout << req.ip() << " " << req.port() << std::endl;
-        // std::cout << req.method() << std::endl;
-        // std::cout << req.url() << std::endl;
-        // std::cout << req.version() << std::endl;
-        // std::cout << req.host() << std::endl;
-        res.SetStatus(HTTP_STATUS::OK);
-        res.SetContentType(HTTP_CONTENT_TYPE::TEXT_HTML);
-        res.Send("fuck you");
+    server->post("/", [](HttpRequest &req, HttpResponse &res) {
+        std::cout << toString(req.method()) << std::endl;
+        std::cout << req.path() << std::endl;
+        std::cout << toString(req.version()) << std::endl;
+        std::cout << req.getHeader("Connection") << std::endl;
+        res.send("fuck you");
     });
-    server.Listen(12345);
+    server->listen(12345);
+
     return 0;
 }
