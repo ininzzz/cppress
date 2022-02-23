@@ -12,7 +12,9 @@
 
 - 类Log4j风格的同步日志
 
-- TODO：JSON解析，代码优化和异常处理
+- 支持JSON解析和序列化
+
+- TODO：代码优化和异常处理
 
   ```cpp
   #include<iostream>
@@ -23,17 +25,22 @@
       WebServer::ptr server(new WebServer);
       server->get("/", [](HttpRequest &req, HttpResponse &res) {
           std::cout << toString(req.method()) << std::endl;
-          std::cout << req.path() << std::endl;
+          std::cout << req.url() << std::endl;
           std::cout << toString(req.version()) << std::endl;
           std::cout << req.getHeader("Connection") << std::endl;
-          res.send("fuck you");
+          res.send("hello");
       });
       server->post("/", [](HttpRequest &req, HttpResponse &res) {
+          req.json();
           std::cout << toString(req.method()) << std::endl;
-          std::cout << req.path() << std::endl;
+          std::cout << req.url() << std::endl;
           std::cout << toString(req.version()) << std::endl;
           std::cout << req.getHeader("Connection") << std::endl;
-          res.send("fuck you");
+          std::cout << req.getJson().dump() << std::endl;
+          res.sendJson(Json::object{
+              {"name","Jack"},
+              {"age",20},
+          });
       });
       server->listen(12345);
   

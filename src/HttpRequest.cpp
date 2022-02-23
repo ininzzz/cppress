@@ -14,7 +14,7 @@ const std::string HttpRequest::getParam(const std::string &header) const {
 void HttpRequest::clear() {
     m_method = HttpMethod::UNKNOWN;
     
-    m_path.clear();
+    m_url.clear();
     m_query.clear();
     
     m_version = HttpVersion::UNKNOWN;
@@ -112,7 +112,7 @@ ParseCode HttpRequest::parseLine() {
     }
 
     while (!isblank(m_line[start]) && m_line[start] != '?') {
-        m_path.push_back(m_line[start++]);
+        m_url.push_back(m_line[start++]);
     }
     while (!isblank(m_line[start])) {
         m_query.push_back(m_line[start++]);
@@ -156,4 +156,10 @@ ParseCode HttpRequest::parseBody() {
     }
     if (m_body.size() == m_content_length) return ParseCode::OK;
     else return ParseCode::OPEN;
+}
+
+void HttpRequest::json() {
+    if (m_headers["Content-Type"] == "application/json") {
+        m_json.reset(new Json(JsonParser(m_body).parse()));
+    }
 }

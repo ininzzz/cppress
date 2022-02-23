@@ -1,5 +1,11 @@
 #include"HttpResponse.h"
 
+const std::string &HttpResponse::getHeader(const std::string &header) {
+    auto it = m_headers.find(header);
+    if (it == m_headers.end()) throw std::runtime_error("unknown header");
+    return it->second;
+}
+
 void HttpResponse::send(const std::string &msg) {
     
     m_buffer->append(toString(m_version));
@@ -19,6 +25,11 @@ void HttpResponse::send(const std::string &msg) {
     m_buffer->append("\r\n");
     
     m_buffer->append(msg); 
+}
+
+void HttpResponse::sendJson(const Json &json) {
+    std::string msg = std::move(json.dump());
+    send(msg);
 }
 
 void HttpResponse::clear() {

@@ -9,6 +9,7 @@
 
 #include"Http.h"
 #include"Buffer.h"
+#include"Json.h"
 
 enum class LineCode {
     OK, BAD, OPEN
@@ -33,13 +34,16 @@ public:
     };
     
     HttpMethod method() const { return m_method; }
-    const std::string& path() const { return m_path; }
+    const std::string& url() const { return m_url; }
     const std::string& query() const { return m_query; }
     HttpVersion version() const { return m_version; }
     const std::string &body() const { return m_body; }
-    
+
+    void json();
+
     const std::string getHeader(const std::string &header) const;
     const std::string getParam(const std::string &header) const;
+    const Json &getJson() { return *m_json.get(); }
     bool isclose() { return !m_keep_alive; }
 
     ParseCode parse();
@@ -53,7 +57,7 @@ private:
     int m_fd;
     HttpMethod m_method = HttpMethod::UNKNOWN;
 
-    std::string m_path;
+    std::string m_url;
     std::string m_query;
 
     HttpVersion m_version = HttpVersion::UNKNOWN;
@@ -69,6 +73,9 @@ private:
     LineStatus m_line_status = LineStatus::NORMAL;
     ParseStatus m_parse_status = ParseStatus::LINE;
     std::string m_line;
+
+    // JsonParser::ptr m_json_parser;
+    Json::ptr m_json;
 };
 
 

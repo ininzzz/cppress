@@ -1,20 +1,22 @@
-// #ifndef ROUTER_H
-// #define ROUTER_H
+#ifndef ROUTER_H
+#define ROUTER_H
 
-// #include"Request.h"
-// #include"Response.h"
+#include"HttpRequest.h"
+#include"HttpResponse.h"
 
-// class Router {
-// public:
-//     Router();
-//     void init(const Request &req_, const Response &res_);
-//     void set(const std::function<void(Request &, Response &)> &func_);
-//     void process();
-// private:
-//     Request req;
-//     Response res;
-//     std::function<void(Request &, Response &)> func;
-// };
+class Router {
+public:
+    using ptr = std::shared_ptr<Router>;
+    Router(HttpRequest::ptr req, HttpResponse::ptr res)
+        :m_req(req), m_res(res) {
+    }
+    void set(const std::function<void(HttpRequest &, HttpResponse &)> &func);
+    void process();
+private:
+    HttpRequest::ptr m_req;
+    HttpResponse::ptr m_res;
+    std::function<void(HttpRequest &, HttpResponse &)> m_func;
+};
 
 
-// #endif
+#endif

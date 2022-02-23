@@ -7,6 +7,7 @@
 
 #include"Http.h"
 #include"Buffer.h"
+#include"Json.h"
 
 class HttpResponse {
 public:
@@ -18,9 +19,16 @@ public:
     void setVersion(HttpVersion version) { m_version = version; }
     void setStatus(HttpStatus status) { m_status = status; }
     void setHeader(const std::string &key, const std::string &val) { m_headers[key] = val; }
+
+    HttpVersion getVersion() { return m_version; }
+    HttpStatus getStatus() { return m_status; }
+    const std::string &getHeader(const std::string &header);
+    
     void send(const std::string &msg);
+    void sendJson(const Json &json);
     void clear();
 private:
+    void make();
     void send() { m_buffer->writeTo(m_fd); }
 private:
     int m_fd;

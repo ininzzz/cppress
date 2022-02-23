@@ -45,7 +45,7 @@ void WebServer::acceptTask() {
 }
 
 void WebServer::readTask(int fd_) {
-    printf("read task!\n");
+    // printf("read task!\n");
 
     HttpRequest &req = conn[fd_]->getRequest();
     HttpResponse &res = conn[fd_]->getResponse();
@@ -55,13 +55,13 @@ void WebServer::readTask(int fd_) {
     else loop->eraseFromTimer(fd_);
 
     if (req.method() == HttpMethod::GET) {
-        if (m_get.count(req.path())) {
-            m_get[req.path()](req, res);
+        if (m_get.count(req.url())) {
+            m_get[req.url()](req, res);
         }
     }
     else if (req.method() == HttpMethod::POST) {
-        if (m_post.count(req.path())) {
-            m_post[req.path()](req, res);
+        if (m_post.count(req.url())) {
+            m_post[req.url()](req, res);
         }
     }
     if (conn[fd_]->needWrite()) loop->modEvent(fd_, EPOLLOUT | event);

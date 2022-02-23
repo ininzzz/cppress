@@ -53,7 +53,7 @@ class Logger;
 // 日志事件
 class LogEvent {
 public:
-    typedef std::shared_ptr<LogEvent> ptr;
+    using ptr = std::shared_ptr<LogEvent>;
     LogEvent(LogLevel level, const char *file, int32_t line, std::thread::id thread_id, time_t time, const char *fmt, ...)
         : m_file(file), m_line(line), m_threadid(thread_id), m_time(time), m_level(level) {
         va_list al;
@@ -83,7 +83,7 @@ private:
 // 格式单元(基类)
 class FormatItem {
 public:
-    typedef std::shared_ptr<FormatItem> ptr;
+    using ptr = std::shared_ptr<FormatItem>;
     virtual ~FormatItem() {}
     virtual void format(std::ostream &os, std::shared_ptr<Logger> logger, LogLevel level, LogEvent::ptr event) = 0;
 };
@@ -91,7 +91,7 @@ public:
 // 日志格式器
 class LogFormatter {
 public:
-    typedef std::shared_ptr<LogFormatter> ptr;
+    using ptr = std::shared_ptr<LogFormatter>;
     LogFormatter(const std::string &pattern);
     
     std::string format(std::shared_ptr<Logger> logger, LogLevel level, LogEvent::ptr event);
@@ -107,7 +107,7 @@ private:
 // 日志输出器(基类)
 class LogAppender {
 public:
-    typedef std::shared_ptr<LogAppender> ptr;
+    using ptr = std::shared_ptr<LogAppender>;
     virtual ~LogAppender() {}
     virtual void log(std::shared_ptr<Logger> logger, LogLevel level, LogEvent::ptr event) = 0;
 
@@ -122,7 +122,7 @@ protected:
 // 标准输出
 class LogAppender_stdout : public LogAppender {
 public:
-    typedef std::shared_ptr<LogAppender_stdout> ptr;
+    using ptr = std::shared_ptr<LogAppender_stdout>;
     virtual void log(std::shared_ptr<Logger> logger, LogLevel level, LogEvent::ptr event) override;
 private:
 
@@ -131,8 +131,9 @@ private:
 // 文件输出
 class LogAppender_file : public LogAppender {
 public:
-    typedef std::shared_ptr<LogAppender_file> ptr;
+    using ptr = std::shared_ptr<LogAppender_file>;
     LogAppender_file(const std::string &filename);
+    ~LogAppender_file() { m_filestream.close(); }
     virtual void log(std::shared_ptr<Logger> logger, LogLevel level, LogEvent::ptr event) override;
     
     bool reopen();
@@ -144,8 +145,8 @@ private:
 // 日志器
 class Logger : public std::enable_shared_from_this<Logger> {
 public:
-    typedef std::shared_ptr<Logger> ptr;
-    
+    using ptr = std::shared_ptr<Logger>;
+
     Logger(const std::string &name = "root");
 
     void log(LogLevel level, LogEvent::ptr event);

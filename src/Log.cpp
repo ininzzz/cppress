@@ -195,6 +195,7 @@ void LogAppender_stdout::log(std::shared_ptr<Logger> logger, LogLevel level, Log
 
 LogAppender_file::LogAppender_file(const std::string &filename)
     :m_filename(filename) {
+    m_filestream.open(filename, std::ios::trunc);
 }
 
 bool LogAppender_file::reopen() {
@@ -226,7 +227,7 @@ std::string LogFormatter::format(std::shared_ptr<Logger> logger, LogLevel level,
 }
 
 std::map<char, std::function<FormatItem::ptr(const std::string &str)>> LogFormatter::m_format_mp = {
-    {'m',[](const std::string &fmt) {return FormatItem::ptr(new MessageFormatItem(fmt));}},
+    {'m', [](const std::string &fmt) {return FormatItem::ptr(new MessageFormatItem(fmt));}},
     {'p', [](const std::string &fmt) {return FormatItem::ptr(new LevelFormatItem(fmt));}},
     {'c', [](const std::string &fmt) {return FormatItem::ptr(new NameFormatItem(fmt));}},
     {'t', [](const std::string &fmt) {return FormatItem::ptr(new ThreadIdFormatItem(fmt));}},
