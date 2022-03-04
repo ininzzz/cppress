@@ -74,66 +74,29 @@ void WebServer::readTask(int fd_) {
     std::string prefix;
     for (int i = 0;;i++) {
         if (url[i] == '/' || i == url.size()) {
-            std::cout << "prefix: " << prefix << std::endl;
             if (m_router.count(prefix)) {
                 std::string suffix;
                 if (i == url.size()) suffix.push_back('/');
                 else suffix.append(url.begin() + i, url.end());
-                std::cout << "suffix: " << suffix << std::endl;
                 if (req->method() == HttpMethod::GET && m_router[prefix]->validGet(suffix)) {
-                    // printf("ok!\n");
-                    {
-                        std::lock_guard<std::mutex> lock(mtx);
-                        m_router[prefix]->set(req, res);
-                    }
-                    m_router[prefix]->processGet(suffix);
+                    // {
+                    //     std::lock_guard<std::mutex> lock(mtx);
+                    //     m_router[prefix]->set(req, res);
+                    // }
+                    m_router[prefix]->processGet(suffix)(req,res);
                 } else if (req->method() == HttpMethod::POST && m_router[prefix]->validPost(suffix)) {
-                    {
-                        std::lock_guard<std::mutex> lock(mtx);
-                        m_router[prefix]->set(req, res);
-                    }
-                    m_router[prefix]->processPost(suffix);
+                    // {
+                    //     std::lock_guard<std::mutex> lock(mtx);
+                    //     m_router[prefix]->set(req, res);
+                    // }
+                    m_router[prefix]->processPost(suffix)(req,res);
                 }
             }
             if (i == url.size()) break;
         }
         prefix.push_back(url[i]);
     }
-    
-    // if (m_router.count(req->url())) {
-    //     const std::string &router_url = m_router[req->url()]->url();
-    //     std::string url;
-    //     int id = 0;
-    //     std::cout << "router url: " << router_url << std::endl;
-    //     std::cout << "req url: " << req->url() << std::endl;
-    //     while (router_url[id] == req->url()[id]) id++;
-    //     if (id < req->url().size()) url.assign(req->url().begin() + id, req->url().end());
-    //     else url.push_back('/');
-    //     std::cout << "url: " << url << std::endl;
-    //     if (req->method() == HttpMethod::GET) {
-    //         m_router[req->url()]->set(req, res);
-    //         m_router[req->url()]->processGet(url);
-    //     }
-    //     else if (req->method() == HttpMethod::POST) {
-    //         m_router[req->url()]->set(req, res);
-    //         m_router[req->url()]->processPost(url);
-    //     }
-    // }
-    
-    // if (req->method() == HttpMethod::GET) {
-    //     if (m_router.count(req->url())) {
-    //         std::lock_guard<std::mutex> lock(mtx);
-    //         m_router[req->url()]->set(req, res);
-    //         m_router[req->url()]->processGet("/");
-    //     }
-    // }
-    // else if (req->method() == HttpMethod::POST) {
-    //     if (m_router.count(req->url())) {
-    //         std::lock_guard<std::mutex> lock(mtx);
-    //         m_router[req->url()]->set(req, res);
-    //         m_router[req->url()]->processGet("/");
-    //     }
-    // }
+
     if (conn[fd_]->needWrite()) loop->modEvent(fd_, EPOLLOUT | event);
     else loop->modEvent(fd_, EPOLLIN | event);
 }
@@ -193,5 +156,5 @@ void WebServer::post(const std::string &url, const callback &func) {
 
 void WebServer::use(const std::string &url, Router::ptr router) {
     if (m_router[url] == nullptr) m_router[url] = router;
-    m_router[url]->setUrl(url);
+    m_router[url]->set(url);
 }
