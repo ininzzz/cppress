@@ -14,7 +14,7 @@ void ServerSocket::listen(uint16_t port) {
     if (::bind(fd, (sockaddr *)&sock_addr, sizeof(sock_addr)) == -1)
         throw std::runtime_error("server bind error");
     
-    if (::listen(fd, 8192*4) == -1)
+    if (::listen(fd, MAX_FD) == -1)
         throw std::runtime_error("server listen error");
 }
 

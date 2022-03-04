@@ -1,19 +1,24 @@
 #include"Json.h"
 
 struct JsonStatic {
-    static const int int_static = 0;
-    static const bool bool_static = false;
+    static const int int_static;
+    static const double double_static;
+    static const bool bool_static;
     static const std::string string_static;
     static const Json::array array_static;
     static const Json::object object_static;
     static Json json_static;
 };
+const int JsonStatic::int_static = 0;
+const double JsonStatic::double_static = 0;
+const bool JsonStatic::bool_static = false;
 const std::string JsonStatic::string_static;
 const Json::array JsonStatic::array_static;
 const Json::object JsonStatic::object_static;
 Json JsonStatic::json_static;
 
 int JsonItem::int_value() const { return JsonStatic::int_static; }
+double JsonItem::double_value() const { return JsonStatic::double_static; }
 bool JsonItem::bool_value() const { return JsonStatic::bool_static; }
 const std::string &JsonItem::string_value() const { return JsonStatic::string_static; }
 const Json::array &JsonItem::array_value() const { return JsonStatic::array_static; }
@@ -35,6 +40,16 @@ public:
     int int_value() const { return m_value; }
 private:
     int m_value;
+};
+
+class JsonDouble : public JsonItem {
+public:
+    JsonDouble(double val) :m_value(val) {}
+    Json::Type type() const override { return Json::Type::NUMBER; }
+    std::string dump() const override { return std::to_string(m_value); }
+    double double_value() const { return m_value; }
+private:
+    double m_value;
 };
 
 class JsonBool : public JsonItem {
@@ -116,6 +131,7 @@ const Json &JsonObject::operator[](const std::string &key) const {
 
 Json::Json() :m_json(new JsonNull) {}
 Json::Json(int val) : m_json(new JsonInt(val)) {}
+Json::Json(double val) : m_json(new JsonDouble(val)) {}
 Json::Json(bool val) : m_json(new JsonBool(val)) {}
 Json::Json(const std::string &val) :m_json(new JsonString(val)) {}
 Json::Json(std::string &&val) :m_json(new JsonString(val)) {}
@@ -127,6 +143,7 @@ Json::Json(const object &val) :m_json(new JsonObject(val)) {}
 Json::Type Json::type() const { return m_json->type(); }
 
 int Json::int_value() const { return m_json->int_value(); }
+double Json::double_value() const { return m_json->double_value(); }
 bool Json::bool_value() const { return m_json->bool_value(); }
 const std::string &Json::string_value() const { return m_json->string_value(); }
 const Json::array &Json::array_items() const { return m_json->array_value(); }
@@ -141,7 +158,7 @@ char JsonParser::next() {
     while (m_st < m_str.size() && isspace(m_str[m_st])) {
         m_st++;
     }
-    if (m_st == m_str.size()) throw std::runtime_error("get next error\n");
+    if (m_st == m_str.size()) return '\0';
     return m_str[m_st++];
 }
 
@@ -155,12 +172,13 @@ Json JsonParser::parse() {
         return parseBool();
     } else if (c == '-' || isdigit(c)) {
         m_st--;
-        return parseInt();
+        return parseNumber();
     } else if (c == '"') {
         return parseString();
     } else if (c == '[') {
         Json::array ans;
-        while (1) {
+        while (true) {
+            if (m_str[m_st] == ']') { m_st++; break; }
             ans.push_back(parse());
             char c = next();
             if (c == ',') continue;
@@ -169,7 +187,8 @@ Json JsonParser::parse() {
         return ans;
     } else if (c == '{') {
         Json::object ans;
-        while (1) {
+        while (true) {
+            if (m_str[m_st] == '}') { m_st++; break; }
             char c = next();
             if (c != '"') throw std::runtime_error("expect key with \"");
             std::string key = std::move(parseString().string_value());
@@ -185,7 +204,7 @@ Json JsonParser::parse() {
     throw std::runtime_error("unknown type");
 }
 
-Json JsonParser::parseInt() {
+Json JsonParser::parseNumber() {
     char c = next();
     int ans = 0;
     bool neg = false;
@@ -194,9 +213,20 @@ Json JsonParser::parseInt() {
     while (isdigit(c = next())) {
         ans = ans * 10 + c - '0';
     }
+    bool is_double = false;
+    int dans = 0;
+    double dcnt = 1;
+    if (c == '.') {
+        is_double = true;
+        while (isdigit(c = next())) {
+            dans = dans * 10 + c - '0';
+            dcnt *= 0.1;
+        }
+    }
     m_st--;
-    if (neg) ans *= -1;
-    return ans;
+    if (neg) ans *= -1, dans *= -1;
+    if (is_double) return ans + dans * dcnt;
+    else return ans;
 }
 
 Json JsonParser::parseString() {

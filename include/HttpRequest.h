@@ -47,6 +47,7 @@ public:
     bool isclose() { return !m_keep_alive; }
 
     ParseCode parse();
+    void reset(int fd) { m_fd = fd; }
     void clear();
 private:
     LineCode checkLine();

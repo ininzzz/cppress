@@ -24,8 +24,8 @@ public:
     }
 
     void clear();
-    HttpRequest &getRequest();
-    HttpResponse &getResponse();
+    HttpRequest::ptr getRequest();
+    HttpResponse::ptr getResponse();
 
     bool needClose() { return m_req->isclose(); }
     bool needRead() { return m_req->m_buffer->size() > 0; }
@@ -33,6 +33,11 @@ public:
     bool validRequest() { return isvaild; }
     void dealResponse() { m_res->send(); }
 
+    void reset(int fd) {
+        m_req->reset(fd);
+        m_res->reset(fd);
+        m_fd = fd;
+    }
 private:
     int m_fd;
     HttpRequest::ptr m_req;

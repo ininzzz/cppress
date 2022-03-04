@@ -24,6 +24,7 @@ public:
     Json();
     // number
     Json(int val);
+    Json(double val);
     // bool
     Json(bool val);
     // string
@@ -45,6 +46,7 @@ public:
     bool is_object()    const { return type() == Type::OBJECT; }
 
     int int_value() const;
+    double double_value() const;
     bool bool_value() const;
     const std::string &string_value() const;
     const array &array_items() const;
@@ -66,6 +68,7 @@ public:
     virtual std::string dump() const = 0;
 
     virtual int int_value() const;
+    virtual double double_value() const;
     virtual bool bool_value() const;
     virtual const std::string &string_value() const;
     virtual const Json::array &array_value() const;
@@ -87,7 +90,7 @@ public:
 private:
     char next();
     Json parseNull();
-    Json parseInt();
+    Json parseNumber();
     Json parseBool();
     Json parseString();
 private:

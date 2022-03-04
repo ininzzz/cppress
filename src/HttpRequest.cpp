@@ -160,6 +160,7 @@ ParseCode HttpRequest::parseBody() {
 
 void HttpRequest::json() {
     if (m_headers["Content-Type"] == "application/json") {
-        m_json.reset(new Json(JsonParser(m_body).parse()));
+        if (m_content_length == 0) m_json.reset(new Json);
+        else m_json.reset(new Json(JsonParser(m_body).parse()));
     }
 }

@@ -10,6 +10,8 @@
 #include<memory>
 #include<functional>
 
+#include"config.h"
+
 struct Socket {
     int fd;
     sockaddr_in sock_addr;

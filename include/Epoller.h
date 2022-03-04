@@ -14,7 +14,7 @@
 #include<sys/epoll.h>
 #include<unistd.h>
 
-const int MAX_FD = 8192;
+#include"config.h"
 
 class Epoller {
 public:

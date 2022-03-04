@@ -18,14 +18,20 @@
 #include"Router.h"
 #include"TCPConnection.h"
 #include"Socket.h"
+#include"config.h"
 
 class WebServer {
 public:
     using ptr = std::shared_ptr<WebServer>;
+    using callback = std::function<void(HttpRequest::ptr, HttpResponse::ptr)>;
     WebServer();
     void listen(uint16_t port);
-    void get(const std::string &url, const std::function<void(HttpRequest &, HttpResponse &)> &func = nullptr);
-    void post(const std::string &url, const std::function<void(HttpRequest &, HttpResponse &)> &func = nullptr);
+    void get(const std::string &url, const callback &func = nullptr);
+    void post(const std::string &url, const callback &func = nullptr);
+    // global
+    void use(const callback &func) { m_global_callback.push_back(func); }
+    // local
+    void use(const std::string &url, Router::ptr router);
     ~WebServer();
 private:
     // 回调函数
@@ -39,8 +45,12 @@ private:
     ServerSocket::ptr sock;
     uint32_t event;
     EventLoop::ptr loop;
-    std::unordered_map<std::string, std::function<void(HttpRequest &, HttpResponse &)>> m_get, m_post;
+    std::unordered_map<std::string, Router::ptr> m_router;
     std::vector<TCPConnection::ptr> conn;
+    std::list<callback> m_global_callback;
+    
+    std::list<TCPConnection::ptr> free_conn;
+    std::mutex mtx;
 };
 
 

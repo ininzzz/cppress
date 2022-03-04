@@ -26,6 +26,7 @@ public:
     
     void send(const std::string &msg);
     void sendJson(const Json &json);
+    void reset(int fd) { m_fd = fd; }
     void clear();
 private:
     void make();

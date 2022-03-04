@@ -1,13 +1,13 @@
 #include"TCPConnection.h"
 
-HttpRequest &TCPConnection::getRequest() {
+HttpRequest::ptr TCPConnection::getRequest() {
     ParseCode ret = m_req->parse();
     if (ret == ParseCode::OK) isvaild = true;
-    return *m_req.get();
+    return m_req;
 }
 
-HttpResponse &TCPConnection::getResponse() {
-    return *m_res.get();
+HttpResponse::ptr TCPConnection::getResponse() {
+    return m_res;
 }
 
 void TCPConnection::clear() {
