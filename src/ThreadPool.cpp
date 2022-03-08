@@ -6,13 +6,13 @@ ThreadPool::ThreadPool(int num) : stop(false) {
             while(true) {
                 std::function<void()> task;
                 {
-                    std::unique_lock<std::mutex> lock(this->mut);
+                    std::unique_lock<std::mutex> lock(mut);
                     cond.wait(lock, [this] {
-                        return this->stop || !this->tasks.empty();
+                        return stop || !tasks.empty();
                     });
-                    if (this->stop && this->tasks.empty()) return;
-                    task = std::move(this->tasks.front());
-                    this->tasks.pop();
+                    if (stop && tasks.empty()) return;
+                    task = std::move(tasks.front());
+                    tasks.pop();
                 }
                 task();
             }

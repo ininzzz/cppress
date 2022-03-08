@@ -42,10 +42,13 @@ private:
     void timeoutTask(int fd_);
     // 关闭连接
     void closeTCPConnection(int fd_);
+
+    int getHash(const std::string &str);
     ServerSocket::ptr sock;
     uint32_t event;
     EventLoop::ptr loop;
     std::unordered_map<std::string, Router::ptr> m_router;
+    std::unordered_map<int, Router::ptr> m_routers;
     std::vector<TCPConnection::ptr> conn;
     std::list<callback> m_global_callback;
     

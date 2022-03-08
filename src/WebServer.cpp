@@ -2,9 +2,7 @@
 
 WebServer::WebServer()
     :loop(new EventLoop), sock(new ServerSocket), conn(MAX_FD) {
-        // for(int i=0;i<MAX_FD;i++){
-        //     conn[i].reset(new TCPConnection(i));
-        // }
+    
 }
 
 WebServer::~WebServer() {}
@@ -39,7 +37,7 @@ void WebServer::acceptTask() {
     Socket new_conn;
     while ((new_conn = sock->accept()).fd != -1) {
         // std::lock_guard<std::mutex> lock(mtx);
-        // printf("new connection! fd is %d\n", new_conn.fd);
+        printf("new connection! fd is %d\n", new_conn.fd);
         
         if (free_conn.size()) {
             conn[new_conn.fd] = std::move(free_conn.front());
@@ -57,7 +55,7 @@ void WebServer::acceptTask() {
 }
 
 void WebServer::readTask(int fd_) {
-    // printf("read task!\n");
+    printf("read task!\n");
 
     HttpRequest::ptr req = conn[fd_]->getRequest();
     HttpResponse::ptr res = conn[fd_]->getResponse();
@@ -66,37 +64,28 @@ void WebServer::readTask(int fd_) {
     if (!conn[fd_]->needClose()) loop->addTimeoutTask(fd_);
     else loop->eraseFromTimer(fd_);
 
-    for (auto cb : m_global_callback) {
+    for (auto &cb : m_global_callback) {
         cb(req, res);
     }
 
     const std::string &url = req->url();
-    std::string prefix;
-    for (int i = 0;;i++) {
-        if (url[i] == '/' || i == url.size()) {
-            if (m_router.count(prefix)) {
+    int base = 233, prefix = 0;
+    for (int i = 0;i < url.size();i++) {
+        prefix = prefix * base + url[i];
+        if (i + 1 == url.size() || url[i + 1] == '/'){
+            if (m_routers.count(prefix)) {
                 std::string suffix;
-                if (i == url.size()) suffix.push_back('/');
-                else suffix.append(url.begin() + i, url.end());
-                if (req->method() == HttpMethod::GET && m_router[prefix]->validGet(suffix)) {
-                    // {
-                    //     std::lock_guard<std::mutex> lock(mtx);
-                    //     m_router[prefix]->set(req, res);
-                    // }
-                    m_router[prefix]->processGet(suffix)(req,res);
-                } else if (req->method() == HttpMethod::POST && m_router[prefix]->validPost(suffix)) {
-                    // {
-                    //     std::lock_guard<std::mutex> lock(mtx);
-                    //     m_router[prefix]->set(req, res);
-                    // }
-                    m_router[prefix]->processPost(suffix)(req,res);
+                if (i + 1 == url.size()) suffix.push_back('/');
+                else suffix.append(url.begin() + i + 1, url.end());
+                if (req->method() == HttpMethod::GET && m_routers[prefix]->validGet(suffix)) {
+                    m_routers[prefix]->processGet(suffix)(req, res);
+                } else if (req->method() == HttpMethod::POST && m_routers[prefix]->validPost(suffix)) {
+                    m_routers[prefix]->processPost(suffix)(req, res);
                 }
+                break;
             }
-            if (i == url.size()) break;
         }
-        prefix.push_back(url[i]);
     }
-
     if (conn[fd_]->needWrite()) loop->modEvent(fd_, EPOLLOUT | event);
     else loop->modEvent(fd_, EPOLLIN | event);
 }
@@ -144,17 +133,28 @@ void WebServer::timeoutTask(int fd_) {
     closeTCPConnection(fd_);
 }
 
-void WebServer::get(const std::string &url, const callback &func) {
-    if(m_router[url]==nullptr) m_router[url].reset(new Router(url));
-    m_router[url]->get("/", func);
+void WebServer::get(const std::string &path, const callback &func) {
+    int hash_value = getHash(path);
+    if (m_routers[hash_value] == nullptr) m_routers[hash_value].reset(new Router(path));
+    m_routers[hash_value]->get("/", func);
 }
 
-void WebServer::post(const std::string &url, const callback &func) {
-    if (m_router[url] == nullptr) m_router[url].reset(new Router(url));
-    m_router[url]->post("/", func);
+void WebServer::post(const std::string &path, const callback &func) {
+    int hash_value = getHash(path);
+    if (m_routers[hash_value] == nullptr) m_routers[hash_value].reset(new Router(path));
+    m_routers[hash_value]->post("/", func);
 }
 
-void WebServer::use(const std::string &url, Router::ptr router) {
-    if (m_router[url] == nullptr) m_router[url] = router;
-    m_router[url]->set(url);
+void WebServer::use(const std::string &path, Router::ptr router) {
+    int hash_value = getHash(path);
+    if (m_routers[hash_value] == nullptr) m_routers[hash_value] = router;
+    m_routers[hash_value]->set(path);
+}
+
+int WebServer::getHash(const std::string &str) {
+    int base = 233, ans = 0;
+    for (auto &c : str) {
+        ans = ans * base + c;
+    }
+    return ans;
 }
