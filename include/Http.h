@@ -1,5 +1,4 @@
-#ifndef HTTP_H
-#define HTTP_H
+#pragma once
 
 #include<string>
 
@@ -24,4 +23,3 @@ enum class HttpVersion {
 std::string toString(HttpStatus status);
 std::string toString(HttpMethod method);
 std::string toString(HttpVersion version);
-#endif

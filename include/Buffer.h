@@ -1,5 +1,4 @@
-#ifndef BUFFER_H
-#define BUFFER_H
+#pragma once
 
 
 #include<sys/uio.h>
@@ -38,6 +37,3 @@ private:
     std::list<page> m_buffer;
     int m_size;
 };
-
-
-#endif

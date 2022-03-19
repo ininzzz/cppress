@@ -1,5 +1,4 @@
-#ifndef SOCKET_H
-#define SOCKET_H
+#pragma once
 
 #include<unistd.h>
 #include<fcntl.h>
@@ -10,7 +9,7 @@
 #include<memory>
 #include<functional>
 
-#include"config.h"
+#include"Config.h"
 
 struct Socket {
     int fd;
@@ -34,5 +33,3 @@ private:
     int fd;
     sockaddr_in sock_addr;
 };
-
-#endif

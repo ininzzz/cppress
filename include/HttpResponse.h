@@ -1,5 +1,4 @@
-#ifndef HTTP_RESPONSE_H
-#define HTTP_RESPONSE_H
+#pragma once
 
 #include<memory>
 #include<map>
@@ -41,6 +40,3 @@ private:
 
     Buffer::ptr m_buffer;
 };
-
-
-#endif

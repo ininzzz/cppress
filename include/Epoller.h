@@ -1,5 +1,4 @@
-#ifndef EPOLLER_H
-#define EPOLLER_H
+#pragma once
 
 #include<cstring>
 #include<vector>
@@ -14,7 +13,7 @@
 #include<sys/epoll.h>
 #include<unistd.h>
 
-#include"config.h"
+#include"Config.h"
 
 class Epoller {
 public:
@@ -36,7 +35,3 @@ private:
     int epollfd;
     epoll_event revents[MAX_FD];
 };
-
-
-
-#endif

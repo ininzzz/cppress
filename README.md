@@ -10,6 +10,8 @@
 
 - 优先队列(最小堆)实现定时器，定时检查并断开不活跃的连接
 
+- 基于C++11局部静态变量的线程安全性实现单例模式
+
 - 类Log4j风格的同步日志
 
 - 支持JSON解析和序列化
@@ -20,11 +22,12 @@
 
   ```cpp
   #include<iostream>
-  #include"WebServer.h"
+  #include"cppress.h"
   
   int main() {
+      LOG_STDOUT_FORMAT("%p\t%d{%Y-%m-%d %H:%M:%S}\t%m%n");
+      
       WebServer::ptr server(new WebServer);
-  
       Router::ptr router(new Router);
       router->get("/info", [](HttpRequest::ptr req, HttpResponse::ptr res) {
           res->send("user info");
@@ -37,14 +40,14 @@
       
       server->get("/", [](HttpRequest::ptr req, HttpResponse::ptr res) {
           std::cout << toString(req->method()) << std::endl;
-          std::cout << req->url() << std::endl;
+          std::cout << req->path() << std::endl;
           std::cout << toString(req->version()) << std::endl;
           std::cout << req->getHeader("Connection") << std::endl;
           res->send("ok");
       });
       server->post("/", [](HttpRequest::ptr req, HttpResponse::ptr res) {
           std::cout << toString(req->method()) << std::endl;
-          std::cout << req->url() << std::endl;
+          std::cout << req->path() << std::endl;
           std::cout << toString(req->version()) << std::endl;
           std::cout << req->getHeader("Connection") << std::endl;
           std::cout << req->getJson().dump() << std::endl;
@@ -53,7 +56,8 @@
               {"age",20},
           });
       });
-      printf("server is running...\n");
+      
+      LOG_DEBUG("%s", "server is running...")
       server->listen(12345);
       return 0;
   }

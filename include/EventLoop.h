@@ -1,5 +1,5 @@
-#ifndef EVENTLOOP_H
-#define EVENTLOOP_H
+#pragma once
+
 #include<map>
 #include<memory>
 
@@ -54,6 +54,3 @@ private:
     std::function<void(int)> close_callback;
     
 };
-
-
-#endif

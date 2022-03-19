@@ -1,5 +1,4 @@
-#ifndef WEBSERVER_H
-#define WEBSERVER_H
+#pragma once
 
 #include<unistd.h>
 #include<fcntl.h>
@@ -18,7 +17,7 @@
 #include"Router.h"
 #include"TCPConnection.h"
 #include"Socket.h"
-#include"config.h"
+#include"Config.h"
 
 class WebServer {
 public:
@@ -55,7 +54,3 @@ private:
     std::list<TCPConnection::ptr> free_conn;
     std::mutex mtx;
 };
-
-
-
-#endif

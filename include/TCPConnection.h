@@ -1,5 +1,4 @@
-#ifndef TCPCONNECTION_H
-#define TCPCONNECTION_H
+#pragma once
 
 #include<unistd.h>
 #include<fcntl.h>
@@ -44,6 +43,3 @@ private:
     HttpResponse::ptr m_res;
     bool isvaild = false;
 };
-
-
-#endif

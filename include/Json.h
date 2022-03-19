@@ -1,5 +1,4 @@
-#ifndef JSON_H
-#define JSON_H
+#pragma once
 
 #include<string>
 #include<cstring>
@@ -98,4 +97,3 @@ private:
     std::string m_str;
 };
 
-#endif

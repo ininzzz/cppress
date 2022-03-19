@@ -68,7 +68,7 @@ void WebServer::readTask(int fd_) {
         cb(req, res);
     }
 
-    const std::string &url = req->url();
+    const std::string &url = req->path();
     int base = 233, prefix = 0;
     for (int i = 0;i < url.size();i++) {
         prefix = prefix * base + url[i];

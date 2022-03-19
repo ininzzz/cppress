@@ -1,5 +1,4 @@
-#ifndef ROUTER_H
-#define ROUTER_H
+#pragma once
 
 #include<unordered_map>
 
@@ -30,6 +29,3 @@ private:
     HttpRequest::ptr m_req;
     HttpResponse::ptr m_res;
 };
-
-
-#endif

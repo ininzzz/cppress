@@ -1,5 +1,4 @@
-#ifndef THREADPOOL_H
-#define THREADPOOL_H
+#pragma once
 
 #include<vector>
 #include<queue>
@@ -27,7 +26,3 @@ private:
     std::condition_variable cond;
     bool stop;
 };
-
-
-
-#endif

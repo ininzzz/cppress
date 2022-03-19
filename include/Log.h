@@ -1,5 +1,4 @@
-#ifndef LOG_H
-#define LOG_H
+#pragma once
 
 #include<string>
 #include<memory>
@@ -16,6 +15,8 @@
 #include<stdint.h>
 #include<stdarg.h>
 
+#include"Singleton.h"
+
 
 // %m -- 消息体
 // %p -- level
@@ -26,7 +27,23 @@
 // %f -- 文件名
 // %l -- 行号
 
-#define LOG_LEVEL(logger, level, fmt, ...)\
+#define LOG_STDOUT_FORMAT(formatter)\
+    LogAppender::ptr ptr(new LogAppender_stdout);\
+    ptr->setFormatter(formatter);\
+    Singleton<Logger>::GetInstance()->addAppender(ptr);\
+
+#define LOG_LEVEL(level, fmt, ...)\
+    Singleton<Logger>::GetInstance()->log(LogLevel::level, LogEvent::ptr(new LogEvent(\
+    LogLevel::level,\
+    __FILE__,\
+    __LINE__,\
+    std::this_thread::get_id(),\
+    std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),\
+    fmt,\
+    __VA_ARGS__\
+)));
+
+#define LOG_LEVEL2(logger,level, fmt, ...)\
     logger->log(LogLevel::level, LogEvent::ptr(new LogEvent(\
     LogLevel::level,\
     __FILE__,\
@@ -37,11 +54,11 @@
     __VA_ARGS__\
 )));
 
-#define LOG_DEBUG(logger, fmt, ...) LOG_LEVEL(logger, DEBUG, fmt, __VA_ARGS__)
-#define LOG_INFO(logger, fmt, ...)  LOG_LEVEL(logger, INFO,  fmt, __VA_ARGS__)
-#define LOG_WARN(logger, fmt, ...)  LOG_LEVEL(logger, WARN,  fmt, __VA_ARGS__)
-#define LOG_ERROR(logger, fmt, ...) LOG_LEVEL(logger, ERROR, fmt, __VA_ARGS__)
-#define LOG_FATAL(logger, fmt, ...) LOG_LEVEL(logger, FATAL, fmt, __VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) LOG_LEVEL(DEBUG, fmt, __VA_ARGS__)
+#define LOG_INFO(fmt, ...)  LOG_LEVEL(INFO,  fmt, __VA_ARGS__)
+#define LOG_WARN(fmt, ...)  LOG_LEVEL(WARN,  fmt, __VA_ARGS__)
+#define LOG_ERROR(fmt, ...) LOG_LEVEL(ERROR, fmt, __VA_ARGS__)
+#define LOG_FATAL(fmt, ...) LOG_LEVEL(FATAL, fmt, __VA_ARGS__)
 
 
 // 日志级别
@@ -171,9 +188,3 @@ private:
     std::list<LogAppender::ptr> m_appender_list;    //Appender集合
     // LogFormatter::ptr m_formatter;
 };
-
-
-
-
-
-#endif

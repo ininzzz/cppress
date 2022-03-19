@@ -1,5 +1,4 @@
-#ifndef HTTP_REQUEST_H
-#define HTTP_REQUEST_H
+#pragma once
 
 #include<memory>
 #include<map>
@@ -34,7 +33,7 @@ public:
     };
     
     HttpMethod method() const { return m_method; }
-    const std::string& url() const { return m_url; }
+    const std::string& path() const { return m_path; }
     const std::string& query() const { return m_query; }
     HttpVersion version() const { return m_version; }
     const std::string &body() const { return m_body; }
@@ -58,7 +57,7 @@ private:
     int m_fd;
     HttpMethod m_method = HttpMethod::UNKNOWN;
 
-    std::string m_url;
+    std::string m_path;
     std::string m_query;
 
     HttpVersion m_version = HttpVersion::UNKNOWN;
@@ -78,6 +77,3 @@ private:
     // JsonParser::ptr m_json_parser;
     Json::ptr m_json;
 };
-
-
-#endif

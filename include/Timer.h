@@ -1,5 +1,4 @@
-#ifndef TIMER_H
-#define TIMER_H
+#pragma once
 
 #include<cassert>
 #include<chrono>
@@ -9,7 +8,7 @@
 #include<functional>
 #include<memory>
 
-#include"config.h"
+#include"Config.h"
 
 struct TimerNode {
     int fd;
@@ -42,5 +41,3 @@ private:
     std::chrono::milliseconds interval;
     std::function<void(int)> callback;
 };
-
-#endif

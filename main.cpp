@@ -1,9 +1,10 @@
 #include<iostream>
-#include"WebServer.h"
+#include"cppress.h"
 
 int main() {
+    LOG_STDOUT_FORMAT("%p\t%d{%Y-%m-%d %H:%M:%S}\t%m%n");
+    
     WebServer::ptr server(new WebServer);
-
     Router::ptr router(new Router);
     router->get("/info", [](HttpRequest::ptr req, HttpResponse::ptr res) {
         res->send("user info");
@@ -16,14 +17,14 @@ int main() {
     
     server->get("/", [](HttpRequest::ptr req, HttpResponse::ptr res) {
         std::cout << toString(req->method()) << std::endl;
-        std::cout << req->url() << std::endl;
+        std::cout << req->path() << std::endl;
         std::cout << toString(req->version()) << std::endl;
         std::cout << req->getHeader("Connection") << std::endl;
         res->send("ok");
     });
     server->post("/", [](HttpRequest::ptr req, HttpResponse::ptr res) {
         std::cout << toString(req->method()) << std::endl;
-        std::cout << req->url() << std::endl;
+        std::cout << req->path() << std::endl;
         std::cout << toString(req->version()) << std::endl;
         std::cout << req->getHeader("Connection") << std::endl;
         std::cout << req->getJson().dump() << std::endl;
@@ -32,7 +33,8 @@ int main() {
             {"age",20},
         });
     });
-    printf("server is running...\n");
+    
+    LOG_DEBUG("%s", "server is running...")
     server->listen(12345);
     return 0;
 }
