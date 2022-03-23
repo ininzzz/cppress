@@ -26,6 +26,7 @@
   
   int main() {
       LOG_STDOUT_FORMAT("%p\t%d{%Y-%m-%d %H:%M:%S}\t%m%n");
+      LOG_FILE_FORMAT("../log.txt","%c\t%p\t%d{%Y-%m-%d %H:%M:%S}\t%m%n");
       
       WebServer::ptr server(new WebServer);
       Router::ptr router(new Router);

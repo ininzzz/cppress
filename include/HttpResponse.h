@@ -3,6 +3,9 @@
 #include<memory>
 #include<map>
 #include<cstring>
+#include<fcntl.h>
+#include<sys/stat.h>
+#include<unistd.h>
 
 #include"Http.h"
 #include"Buffer.h"
@@ -24,11 +27,12 @@ public:
     const std::string &getHeader(const std::string &header);
     
     void send(const std::string &msg);
+    void sendFile(const std::string &path);
     void sendJson(const Json &json);
     void reset(int fd) { m_fd = fd; }
     void clear();
 private:
-    void make();
+    void makeHeader(int content_length);
     void send() { m_buffer->writeTo(m_fd); }
 private:
     int m_fd;

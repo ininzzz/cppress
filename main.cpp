@@ -2,8 +2,10 @@
 #include"cppress.h"
 
 int main() {
-    LOG_STDOUT_FORMAT("%p\t%d{%Y-%m-%d %H:%M:%S}\t%m%n");
-    
+    LOG_STDOUT_FORMAT("%c\t%p\t%d{%Y-%m-%d %H:%M:%S}\t%m%n");
+    LOG_FILE_FORMAT("../log.txt","%c\t%p\t%d{%Y-%m-%d %H:%M:%S}\t%m%n");
+
+
     WebServer::ptr server(new WebServer);
     Router::ptr router(new Router);
     router->get("/info", [](HttpRequest::ptr req, HttpResponse::ptr res) {
@@ -20,7 +22,7 @@ int main() {
         std::cout << req->path() << std::endl;
         std::cout << toString(req->version()) << std::endl;
         std::cout << req->getHeader("Connection") << std::endl;
-        res->send("ok");
+        res->send("hi");
     });
     server->post("/", [](HttpRequest::ptr req, HttpResponse::ptr res) {
         std::cout << toString(req->method()) << std::endl;

@@ -28,23 +28,17 @@
 // %l -- 行号
 
 #define LOG_STDOUT_FORMAT(formatter)\
-    LogAppender::ptr ptr(new LogAppender_stdout);\
+    {LogAppender::ptr ptr(new LogAppender_stdout);\
     ptr->setFormatter(formatter);\
-    Singleton<Logger>::GetInstance()->addAppender(ptr);\
+    Singleton<Logger>::GetInstance()->addAppender(ptr);}\
+
+#define LOG_FILE_FORMAT(filepath, formatter)\
+    {LogAppender::ptr ptr(new LogAppender_file(filepath));\
+    ptr->setFormatter(formatter);\
+    Singleton<Logger>::GetInstance()->addAppender(ptr);}\
 
 #define LOG_LEVEL(level, fmt, ...)\
     Singleton<Logger>::GetInstance()->log(LogLevel::level, LogEvent::ptr(new LogEvent(\
-    LogLevel::level,\
-    __FILE__,\
-    __LINE__,\
-    std::this_thread::get_id(),\
-    std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),\
-    fmt,\
-    __VA_ARGS__\
-)));
-
-#define LOG_LEVEL2(logger,level, fmt, ...)\
-    logger->log(LogLevel::level, LogEvent::ptr(new LogEvent(\
     LogLevel::level,\
     __FILE__,\
     __LINE__,\

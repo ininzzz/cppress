@@ -7,24 +7,18 @@ const std::string &HttpResponse::getHeader(const std::string &header) {
 }
 
 void HttpResponse::send(const std::string &msg) {
-    
-    m_buffer->append(toString(m_version));
-    m_buffer->append(" ");
-    m_buffer->append(std::to_string(static_cast<int>(m_status)));
-    m_buffer->append(" ");
-    m_buffer->append(toString(m_status));
-    m_buffer->append("\r\n");
-
-    setHeader("Content-Length", std::to_string(msg.size()));
-    for (auto &header : m_headers) {
-        m_buffer->append(header.first);
-        m_buffer->append(": ");
-        m_buffer->append(header.second);
-        m_buffer->append("\r\n");
-    }
-    m_buffer->append("\r\n");
-    
+    makeHeader(msg.size());
     m_buffer->append(msg); 
+}
+
+void HttpResponse::sendFile(const std::string &path) {
+    int fd = ::open(path.c_str(), O_RDONLY);
+    struct stat st;
+    fstat(fd, &st);
+    int len = st.st_size;
+    
+    makeHeader(len);
+    m_buffer->readFrom(fd);
 }
 
 void HttpResponse::sendJson(const Json &json) {
@@ -37,4 +31,22 @@ void HttpResponse::clear() {
     m_status = HttpStatus::OK;
     m_headers.clear();
     m_body.clear();
+}
+
+void HttpResponse::makeHeader(int content_length) {
+    m_buffer->append(toString(m_version));
+    m_buffer->append(" ");
+    m_buffer->append(std::to_string(static_cast<int>(m_status)));
+    m_buffer->append(" ");
+    m_buffer->append(toString(m_status));
+    m_buffer->append("\r\n");
+
+    setHeader("Content-Length", std::to_string(content_length));
+    for (auto &header : m_headers) {
+        m_buffer->append(header.first);
+        m_buffer->append(": ");
+        m_buffer->append(header.second);
+        m_buffer->append("\r\n");
+    }
+    m_buffer->append("\r\n");
 }

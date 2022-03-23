@@ -209,6 +209,7 @@ bool LogAppender_file::reopen() {
 void LogAppender_file::log(std::shared_ptr<Logger> logger, LogLevel level, LogEvent::ptr event) {
     if (static_cast<int>(level) >= static_cast<int>(m_level)) {
         m_filestream << m_formatter->format(logger, level, event);
+        m_filestream.flush();
     }
 }
 
