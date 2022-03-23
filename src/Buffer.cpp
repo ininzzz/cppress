@@ -10,12 +10,23 @@ void Buffer::append(const std::string &str) {
     }
 }
 
+void Buffer::append(const char *buf, int len) {
+    for (int i = 0;i < len;i++) {
+        char c = buf[i];
+        if (!m_buffer.size() || m_buffer.back().wpos == page_size - 1) {
+            m_buffer.emplace_back();
+        }
+        m_buffer.back().buf[m_buffer.back().wpos++] = c;
+        m_size++;
+    }
+}
+
 void Buffer::readFrom(int fd) {
     char buf[page_size];
     int len = 0;
     while ((len = ::read(fd, buf, sizeof(buf) - 1)) > 0) {
         buf[len] = '\0';
-        this->append(buf);
+        this->append(buf, len);
     }
     
 }

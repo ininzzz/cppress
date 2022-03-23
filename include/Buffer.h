@@ -20,6 +20,7 @@ public:
     void writeTo(int fd);
 
     void append(const std::string &str);
+    void append(const char* buf,int len);
     
     char front();
     void pop();

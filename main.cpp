@@ -22,7 +22,8 @@ int main() {
         std::cout << req->path() << std::endl;
         std::cout << toString(req->version()) << std::endl;
         std::cout << req->getHeader("Connection") << std::endl;
-        res->send("hi");
+        res->setHeader("Content-Type", "image/png");
+        res->sendFile("../xxx.png");
     });
     server->post("/", [](HttpRequest::ptr req, HttpResponse::ptr res) {
         std::cout << toString(req->method()) << std::endl;
