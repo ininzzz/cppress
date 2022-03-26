@@ -23,13 +23,15 @@ class WebServer {
 public:
     using ptr = std::shared_ptr<WebServer>;
     using callback = std::function<void(HttpRequest::ptr, HttpResponse::ptr)>;
+    using middleware = std::function<bool(HttpRequest::ptr, HttpResponse::ptr)>;
+    
     WebServer();
     void listen(uint16_t port);
     void get(const std::string &path, const callback &func = nullptr);
     void post(const std::string &path, const callback &func = nullptr);
     // global
-    void use(const callback &func) { m_global_middleware.push_back(func); }
-    void use(const std::string &path, const callback &func) { m_routers[getHash(path)]->use(func); }
+    void use(const middleware &func) { m_global_middleware.push_back(func); }
+    void use(const std::string &path, const middleware &func) { m_routers[getHash(path)]->use(func); }
     // local
     void use(const std::string &path, Router::ptr router);
     ~WebServer();
@@ -50,5 +52,5 @@ private:
     // std::unordered_map<std::string, Router::ptr> m_router;
     std::unordered_map<int, Router::ptr> m_routers;
     std::vector<TCPConnection::ptr> conn;
-    std::list<callback> m_global_middleware;
+    std::list<middleware> m_global_middleware;
 };

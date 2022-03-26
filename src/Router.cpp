@@ -1,7 +1,8 @@
 #include"Router.h"
 
-void Router::processMiddleware() {
+bool Router::processMiddleware() {
     for (auto &cb : m_middleware) {
-        cb(m_req, m_res);
+        if (!cb(m_req, m_res)) return false;
     }
+    return true;
 }

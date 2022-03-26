@@ -55,7 +55,7 @@ void WebServer::readTask(int fd_) {
     else loop->eraseFromTimer(fd_);
 
     for (auto &cb : m_global_middleware) {
-        cb(req, res);
+        if (!cb(req, res)) break;;
     }
 
     const std::string &url = req->path();
@@ -68,11 +68,15 @@ void WebServer::readTask(int fd_) {
                 if (i + 1 == url.size()) suffix.push_back('/');
                 else suffix.append(url.begin() + i + 1, url.end());
                 if (req->method() == HttpMethod::GET && m_routers[prefix]->validGet(suffix)) {
-                    m_routers[prefix]->processMiddleware();
-                    m_routers[prefix]->processGet(suffix)(req, res);
+                    m_routers[prefix]->set(req, res);
+                    if (m_routers[prefix]->processMiddleware()) {
+                        m_routers[prefix]->processGet(suffix)(req, res);
+                    }
                 } else if (req->method() == HttpMethod::POST && m_routers[prefix]->validPost(suffix)) {
-                    m_routers[prefix]->processMiddleware();
-                    m_routers[prefix]->processPost(suffix)(req, res);
+                    m_routers[prefix]->set(req, res);
+                    if (m_routers[prefix]->processMiddleware()) {
+                        m_routers[prefix]->processPost(suffix)(req, res);
+                    }
                 }
                 break;
             }
