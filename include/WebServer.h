@@ -25,12 +25,13 @@ public:
     using callback = std::function<void(HttpRequest::ptr, HttpResponse::ptr)>;
     WebServer();
     void listen(uint16_t port);
-    void get(const std::string &url, const callback &func = nullptr);
-    void post(const std::string &url, const callback &func = nullptr);
+    void get(const std::string &path, const callback &func = nullptr);
+    void post(const std::string &path, const callback &func = nullptr);
     // global
-    void use(const callback &func) { m_global_callback.push_back(func); }
+    void use(const callback &func) { m_global_middleware.push_back(func); }
+    void use(const std::string &path, const callback &func) { m_routers[getHash(path)]->use(func); }
     // local
-    void use(const std::string &url, Router::ptr router);
+    void use(const std::string &path, Router::ptr router);
     ~WebServer();
 private:
     // 回调函数
@@ -46,11 +47,8 @@ private:
     ServerSocket::ptr sock;
     uint32_t event;
     EventLoop::ptr loop;
-    std::unordered_map<std::string, Router::ptr> m_router;
+    // std::unordered_map<std::string, Router::ptr> m_router;
     std::unordered_map<int, Router::ptr> m_routers;
     std::vector<TCPConnection::ptr> conn;
-    std::list<callback> m_global_callback;
-    
-    std::list<TCPConnection::ptr> free_conn;
-    std::mutex mtx;
+    std::list<callback> m_global_middleware;
 };

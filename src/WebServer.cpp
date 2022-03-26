@@ -1,8 +1,10 @@
 #include"WebServer.h"
 
 WebServer::WebServer()
-    :loop(new EventLoop), sock(new ServerSocket), conn(MAX_FD) {
-    
+    :loop(new EventLoop), sock(new ServerSocket) {
+    for (int i = 0;i < MAX_FD;i++) {
+        conn.push_back(TCPConnection::ptr(new TCPConnection(i)));
+    }
 }
 
 WebServer::~WebServer() {}
@@ -36,19 +38,7 @@ void WebServer::listen(uint16_t port) {
 void WebServer::acceptTask() {
     Socket new_conn;
     while ((new_conn = sock->accept()).fd != -1) {
-        // std::lock_guard<std::mutex> lock(mtx);
         printf("new connection! fd is %d\n", new_conn.fd);
-        
-        if (free_conn.size()) {
-            conn[new_conn.fd] = std::move(free_conn.front());
-            conn[new_conn.fd]->reset(new_conn.fd);
-            // conn[new_conn.fd].reset(new TCPConnection(new_conn.fd));
-            free_conn.pop_front();
-        }
-        else {
-            conn[new_conn.fd].reset(new TCPConnection(new_conn.fd));
-        }
-        
         loop->addEvent(new_conn.fd, EPOLLIN | event);
     }
     loop->modEvent(sock->get_fd(), EPOLLIN | EPOLLET | EPOLLONESHOT);
@@ -64,7 +54,7 @@ void WebServer::readTask(int fd_) {
     if (!conn[fd_]->needClose()) loop->addTimeoutTask(fd_);
     else loop->eraseFromTimer(fd_);
 
-    for (auto &cb : m_global_callback) {
+    for (auto &cb : m_global_middleware) {
         cb(req, res);
     }
 
@@ -78,8 +68,10 @@ void WebServer::readTask(int fd_) {
                 if (i + 1 == url.size()) suffix.push_back('/');
                 else suffix.append(url.begin() + i + 1, url.end());
                 if (req->method() == HttpMethod::GET && m_routers[prefix]->validGet(suffix)) {
+                    m_routers[prefix]->processMiddleware();
                     m_routers[prefix]->processGet(suffix)(req, res);
                 } else if (req->method() == HttpMethod::POST && m_routers[prefix]->validPost(suffix)) {
+                    m_routers[prefix]->processMiddleware();
                     m_routers[prefix]->processPost(suffix)(req, res);
                 }
                 break;
@@ -112,15 +104,10 @@ void WebServer::writeTask(int fd_) {
 }
 
 void WebServer::closeTCPConnection(int fd_) {
-    
     // printf("%d is closed\n", fd_);
     loop->delEvent(fd_);
     loop->eraseFromTimer(fd_);
     conn[fd_]->clear();
-    {
-        std::lock_guard<std::mutex> lock(mtx);
-        free_conn.push_back(std::move(conn[fd_]));
-    }
     ::close(fd_);
 }
 

@@ -8,11 +8,21 @@ int main() {
 
     WebServer::ptr server(new WebServer);
     Router::ptr router(new Router);
+    router->use([](HttpRequest::ptr req, HttpResponse::ptr res) {
+        printf("middleware1...\n");
+    });
+    router->use([](HttpRequest::ptr req, HttpResponse::ptr res) {
+        printf("middleware2...\n");
+    });
     router->get("/info", [](HttpRequest::ptr req, HttpResponse::ptr res) {
         res->send("user info");
     });
     server->use("/user", router);
-    
+
+    server->use([](HttpRequest::ptr req, HttpResponse::ptr res) {
+        printf("global...\n");
+    });
+
     server->use([](HttpRequest::ptr req, HttpResponse::ptr res) {
         req->json();
     });

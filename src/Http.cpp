@@ -2,14 +2,20 @@
 
 std::string toString(HttpStatus status) {
     switch (status) {
-    case HttpStatus::OK:
-        return "OK";
-    case HttpStatus::BAD_REQUEST:
-        return "Bad Request";
-    case HttpStatus::NOT_FOUND:
-        return "Not found";
-    default:
-        return "Unknown";
+    case HttpStatus::OK:                    return "OK";
+    case HttpStatus::NO_CONTENT:            return "No Content";
+
+    case HttpStatus::MOVED_PERMANENTLY:     return "Moved Permanently";
+    case HttpStatus::FOUND:                 return "Found";
+    case HttpStatus::SEE_OTHER:             return "See Other";
+
+    case HttpStatus::BAD_REQUEST:           return "Bad Request";
+    case HttpStatus::UNAUTHORIZED:          return "Unauthorized";
+    case HttpStatus::NOT_FOUND:             return "Not found";
+        
+    case HttpStatus::INTERNAL_SERVER_ERROR: return "Internal Server Error";
+    case HttpStatus::SERVICE_UNAVAILABLE:   return "Service Unavailable";
+    default:                                return "Unknown";
     }
 }
 std::string toString(HttpMethod method) {
