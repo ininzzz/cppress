@@ -1,0 +1,1 @@
+../web_bench/webbench -c 100 -t 10 http://124.222.25.150:12345/ --get --http11

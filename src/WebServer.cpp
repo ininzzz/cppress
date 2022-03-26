@@ -38,14 +38,14 @@ void WebServer::listen(uint16_t port) {
 void WebServer::acceptTask() {
     Socket new_conn;
     while ((new_conn = sock->accept()).fd != -1) {
-        printf("new connection! fd is %d\n", new_conn.fd);
+        // printf("new connection! fd is %d\n", new_conn.fd);
         loop->addEvent(new_conn.fd, EPOLLIN | event);
     }
     loop->modEvent(sock->get_fd(), EPOLLIN | EPOLLET | EPOLLONESHOT);
 }
 
 void WebServer::readTask(int fd_) {
-    printf("read task!\n");
+    // printf("read task!\n");
 
     HttpRequest::ptr req = conn[fd_]->getRequest();
     HttpResponse::ptr res = conn[fd_]->getResponse();
