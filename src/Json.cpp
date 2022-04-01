@@ -30,6 +30,7 @@ class JsonNull : public JsonItem {
 public:
     Json::Type type() const override { return Json::Type::NUL; }
     std::string dump() const override { return "null"; }
+    bool equal(const JsonItem *rhs) const override { return true; }
 };
 
 class JsonInt : public JsonItem {
@@ -38,6 +39,7 @@ public:
     Json::Type type() const override { return Json::Type::NUMBER; }
     std::string dump() const override { return std::to_string(m_value); }
     int int_value() const { return m_value; }
+    bool equal(const JsonItem *rhs) const override { return m_value == rhs->int_value(); }
 private:
     int m_value;
 };
@@ -48,6 +50,7 @@ public:
     Json::Type type() const override { return Json::Type::NUMBER; }
     std::string dump() const override { return std::to_string(m_value); }
     double double_value() const { return m_value; }
+    bool equal(const JsonItem *rhs) const override { return m_value == rhs->double_value(); }
 private:
     double m_value;
 };
@@ -58,6 +61,7 @@ public:
     Json::Type type() const override { return Json::Type::BOOL; }
     std::string dump() const override { return m_value ? "true" : "false"; }
     bool bool_value() const { return m_value; }
+    bool equal(const JsonItem *rhs) const override { return m_value == rhs->bool_value(); }
 private:
     bool m_value;
 };
@@ -69,6 +73,7 @@ public:
     Json::Type type() const override { return Json::Type::STRING; }
     std::string dump() const override { return "\"" + m_value + "\""; }
     const std::string &string_value() const override { return m_value; }
+    bool equal(const JsonItem *rhs) const override { return m_value == rhs->string_value(); }
 private:
     std::string m_value;
 };
@@ -80,6 +85,7 @@ public:
     std::string dump() const override;
     const Json::array &array_value() const override { return m_value; }
     const Json &operator[](int pos) const override { return m_value[pos]; }
+    bool equal(const JsonItem *rhs) const override { return m_value == rhs->array_value(); }
 private:
     Json::array m_value;
 };
@@ -94,7 +100,7 @@ std::string JsonArray::dump() const {
         res += val.dump();
     }
     res += ']';
-    return std::move(res);
+    return res;
 }
 
 class JsonObject : public JsonItem {
@@ -104,6 +110,7 @@ public:
     std::string dump() const override;
     const Json::object &object_value() const override { return m_value; }
     const Json &operator[](const std::string &key) const override;
+    bool equal(const JsonItem *rhs) const override { return m_value == rhs->object_value(); }
 private:
     Json::object m_value;
 };
@@ -120,7 +127,7 @@ std::string JsonObject::dump() const {
         res += val.second.dump();
     }
     res += '}';
-    return std::move(res);
+    return res;
 }
 
 const Json &JsonObject::operator[](const std::string &key) const {
@@ -152,6 +159,12 @@ const Json::object &Json::object_item() const { return m_json->object_value(); }
 const Json &Json::operator[](const std::string &key) const { return m_json->operator[](key); }
 const Json &Json::operator[](int pos) const { return m_json->operator[](pos); }
 
+bool Json::operator==(const Json &rhs) const {
+    if (m_json == rhs.m_json) return true;
+    if (type() != rhs.type()) return false;
+    return m_json->equal(rhs.m_json.get());
+}
+
 std::string Json::dump() const { return m_json->dump(); }
 
 char JsonParser::next() {
@@ -163,6 +176,7 @@ char JsonParser::next() {
 }
 
 Json JsonParser::parse() {
+    if (m_str.size() == 0) return Json{};
     char c = next();
     if (c == 'n') {
         m_st--;
@@ -235,7 +249,7 @@ Json JsonParser::parseString() {
     while ((ch = m_str[m_st++]) != '"') {
         ans.push_back(ch);
     }
-    return std::move(ans);
+    return ans;
 }
 
 Json JsonParser::parseBool() {

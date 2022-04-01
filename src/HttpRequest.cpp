@@ -158,9 +158,19 @@ ParseCode HttpRequest::parseBody() {
     else return ParseCode::OPEN;
 }
 
-void HttpRequest::json() {
-    if (m_headers["Content-Type"] == "application/json") {
-        if (m_content_length == 0) m_json.reset(new Json);
-        else m_json.reset(new Json(JsonParser(m_body).parse()));
-    }
+// void HttpRequest::json() {
+//     if (m_headers["Content-Type"] == "application/json") {
+//         if (m_content_length == 0) m_json.reset(new Json);
+//         else m_json.reset(new Json(JsonParser(m_body).parse()));
+//     }
+// }
+
+void HttpRequest::setAttribute(const std::string &key, const Json &value) {
+    m_attribute[key] = value;
+}
+
+const Json HttpRequest::getAttribute(const std::string &header) const {
+    auto itr = m_attribute.find(header);
+    if (itr == m_attribute.end()) return Json{};
+    return itr->second;
 }

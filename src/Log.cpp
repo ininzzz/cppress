@@ -195,21 +195,13 @@ void LogAppender_stdout::log(std::shared_ptr<Logger> logger, LogLevel level, Log
 
 LogAppender_file::LogAppender_file(const std::string &filename)
     :m_filename(filename) {
-    m_filestream.open(filename, std::ios::trunc);
-}
-
-bool LogAppender_file::reopen() {
-    if (m_filestream) {
-        m_filestream.close();
-    }
-    m_filestream.open(m_filename);
-    return !!m_filestream;
+    m_fd = ::open(m_filename.c_str(), O_WRONLY | O_TRUNC);
+    m_buffer.reset(new LogBuffer(m_fd));
 }
 
 void LogAppender_file::log(std::shared_ptr<Logger> logger, LogLevel level, LogEvent::ptr event) {
     if (static_cast<int>(level) >= static_cast<int>(m_level)) {
-        m_filestream << m_formatter->format(logger, level, event);
-        m_filestream.flush();
+        m_buffer->append(m_formatter->format(logger, level, event));
     }
 }
 

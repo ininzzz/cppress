@@ -35,8 +35,10 @@ public:
     // object
     Json(const object &val);
 
+    // get type
     Type type() const;
-    
+
+    // check type
     bool is_null()      const { return type() == Type::NUL; }
     bool is_number()    const { return type() == Type::NUMBER; }
     bool is_bool()      const { return type() == Type::BOOL; }
@@ -44,6 +46,7 @@ public:
     bool is_array()     const { return type() == Type::ARRAY; }
     bool is_object()    const { return type() == Type::OBJECT; }
 
+    // get value
     int int_value() const;
     double double_value() const;
     bool bool_value() const;
@@ -51,9 +54,15 @@ public:
     const array &array_items() const;
     const object &object_item() const;
 
+    // equal
+    bool operator==(const Json &rhs) const;
+
+    // get value for object type
     const Json &operator[](const std::string &key) const;
+    // get value for array type
     const Json &operator[](int pos) const;
 
+    // serialize
     std::string dump() const;
 
 private:
@@ -65,6 +74,7 @@ public:
     using ptr = std::shared_ptr<JsonItem>;
     virtual Json::Type type() const = 0;
     virtual std::string dump() const = 0;
+    virtual bool equal(const JsonItem *rhs) const = 0;
 
     virtual int int_value() const;
     virtual double double_value() const;
@@ -84,8 +94,10 @@ class JsonParser {
 public:
     using ptr = std::shared_ptr<JsonParser>;
     JsonParser(const std::string &str) :m_str(str), m_st(0) {}
+    
     void set(const std::string &str) { m_str = str; }
     Json parse();
+    
 private:
     char next();
     Json parseNull();

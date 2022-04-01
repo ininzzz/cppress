@@ -31,12 +31,6 @@ public:
     bool needWrite() { return m_res->m_buffer->size() > 0; }
     bool validRequest() { return isvaild; }
     void dealResponse() { m_res->send(); }
-
-    void reset(int fd) {
-        m_req->reset(fd);
-        m_res->reset(fd);
-        m_fd = fd;
-    }
 private:
     int m_fd;
     HttpRequest::ptr m_req;

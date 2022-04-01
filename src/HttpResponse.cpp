@@ -7,7 +7,7 @@ const std::string &HttpResponse::getHeader(const std::string &header) {
 }
 
 void HttpResponse::send(const std::string &msg) {
-    if (m_buffer->size()) throw std::runtime_error("double send");
+    // if (m_buffer->size()) throw std::runtime_error("double send");
     makeHeader(msg.size());
     m_buffer->append(msg); 
 }
@@ -28,6 +28,12 @@ void HttpResponse::sendJson(const Json &json) {
     std::string msg = std::move(json.dump());
     send(msg);
 }
+
+void HttpResponse::sendStatus(HttpStatus status) {
+    setStatus(status);
+    send(std::to_string(static_cast<int>(m_status)) + " " + toString(status));
+}
+
 
 void HttpResponse::clear() {
     m_version = HttpVersion::HTTP_1_1;

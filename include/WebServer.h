@@ -27,12 +27,13 @@ public:
     
     WebServer();
     void listen(uint16_t port);
-    void get(const std::string &path, const callback &func = nullptr);
-    void post(const std::string &path, const callback &func = nullptr);
+    void get(const std::string &path, const callback &func);
+    void post(const std::string &path, const callback &func);
     // global
-    void use(const middleware &func) { m_global_middleware.push_back(func); }
-    void use(const std::string &path, const middleware &func) { m_routers[getHash(path)]->use(func); }
+    void use(const middleware &func);
     // local
+    void use(const std::string &path, const middleware &func);
+    // router
     void use(const std::string &path, Router::ptr router);
     ~WebServer();
 private:
@@ -46,10 +47,11 @@ private:
     void closeTCPConnection(int fd_);
 
     int getHash(const std::string &str);
+    const int hash_base = 233;
+    
     ServerSocket::ptr sock;
     uint32_t event;
     EventLoop::ptr loop;
-    // std::unordered_map<std::string, Router::ptr> m_router;
     std::unordered_map<int, Router::ptr> m_routers;
     std::vector<TCPConnection::ptr> conn;
     std::list<middleware> m_global_middleware;

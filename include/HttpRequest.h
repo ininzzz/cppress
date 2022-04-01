@@ -38,11 +38,14 @@ public:
     HttpVersion version() const { return m_version; }
     const std::string &body() const { return m_body; }
 
-    void json();
+    // void json();
 
     const std::string getHeader(const std::string &header) const;
     const std::string getParam(const std::string &header) const;
-    const Json &getJson() { return *m_json.get(); }
+    
+    void setAttribute(const std::string &key, const Json &value);
+    const Json getAttribute(const std::string &header) const;
+    // const Json &getJson() { return *m_json.get(); }
     bool isclose() { return !m_keep_alive; }
 
     ParseCode parse();
@@ -64,6 +67,9 @@ private:
 
     std::map<std::string, std::string> m_headers;
     std::map<std::string, std::string> m_params;
+    
+    std::map<std::string, Json> m_attribute;
+    
     int m_content_length = 0;
     bool m_keep_alive = true;
 
@@ -75,5 +81,5 @@ private:
     std::string m_line;
 
     // JsonParser::ptr m_json_parser;
-    Json::ptr m_json;
+    // Json::ptr m_json;
 };

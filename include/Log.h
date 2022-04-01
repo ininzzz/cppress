@@ -14,8 +14,10 @@
 #include<thread>
 #include<stdint.h>
 #include<stdarg.h>
+#include<fcntl.h>
 
 #include"Singleton.h"
+#include"LogBuffer.h"
 
 
 // %m -- 消息体
@@ -38,14 +40,15 @@
     Singleton<Logger>::GetInstance()->addAppender(ptr);}\
 
 #define LOG_LEVEL(level, fmt, ...)\
-    Singleton<Logger>::GetInstance()->log(LogLevel::level, LogEvent::ptr(new LogEvent(\
-    LogLevel::level,\
-    __FILE__,\
-    __LINE__,\
-    std::this_thread::get_id(),\
-    std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),\
-    fmt,\
-    __VA_ARGS__\
+    if(Singleton<Logger>::GetInstance()->getLevel() <= LogLevel::level)\
+        Singleton<Logger>::GetInstance()->log(LogLevel::level, LogEvent::ptr(new LogEvent(\
+            LogLevel::level,\
+            __FILE__,\
+            __LINE__,\
+            std::this_thread::get_id(),\
+            std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()),\
+            fmt,\
+            __VA_ARGS__\
 )));
 
 #define LOG_DEBUG(fmt, ...) LOG_LEVEL(DEBUG, fmt, __VA_ARGS__)
@@ -144,13 +147,12 @@ class LogAppender_file : public LogAppender {
 public:
     using ptr = std::shared_ptr<LogAppender_file>;
     LogAppender_file(const std::string &filename);
-    ~LogAppender_file() { m_filestream.close(); }
+    ~LogAppender_file() { ::close(m_fd); }
     virtual void log(std::shared_ptr<Logger> logger, LogLevel level, LogEvent::ptr event) override;
-    
-    bool reopen();
 private:
     std::string m_filename;
-    std::ofstream m_filestream;
+    int m_fd;
+    LogBuffer::ptr m_buffer;
 };
 
 // 日志器

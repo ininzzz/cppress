@@ -7,29 +7,28 @@
 #include<functional>
 #include<list>
 #include<memory>
+#include<thread>
+#include<condition_variable>
 #include<cstring>
 #include<unistd.h>
 
-class Buffer {
+#include"Config.h"
+
+class LogBuffer {
 public:
-    using ptr = std::shared_ptr<Buffer>;
-    
-    Buffer() :m_size(0) {}
-    
-    void readFrom(int fd);
-    void writeTo(int fd);
+    using ptr = std::shared_ptr<LogBuffer>;
+
+    LogBuffer(int fd);
 
     void append(const std::string &str);
-    void append(const char* buf,int len);
-    
-    char front();
-    void pop();
-    
-    int size() { return m_size; }
-    int page_count() { return m_buffer.size(); }
-    bool empty() { return m_size == 0; }
+
+    int size() const { return m_size; }
+    bool empty() const { return m_size == 0; }
     void clear() { m_buffer.clear(); }
+    
+
 private:
+    void dump();
     static const int page_size = 4096;
     struct page {
         page() :rpos(0), wpos(0) {}
@@ -37,5 +36,11 @@ private:
         int rpos, wpos;
     };
     std::list<page> m_buffer;
+    std::list<page> m_buffer_temp;
     int m_size;
+    int m_fd;
+
+    std::thread m_producer;
+    std::mutex m_mtx;
+    std::condition_variable m_cond;
 };

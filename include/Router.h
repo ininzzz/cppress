@@ -14,17 +14,17 @@ public:
     Router(const std::string path = "") { m_path = path; }
     
     void set(const std::string &path) { m_path = path; }
-    void set(HttpRequest::ptr req, HttpResponse::ptr res) { m_req = req, m_res = res; }
-    const std::string &path() { return m_path; }
-    
-    void get(const std::string &path, const callback &func) { m_get[path] = func; }
-    void post(const std::string &path, const callback &func) { m_post[path] = func; }
+
+    const std::string &path() const { return m_path; }
+
+    void get(const std::string &path, const callback &func);
+    void post(const std::string &path, const callback &func);
 
     void use(const middleware &func) { m_middleware.push_back(func); }
     
-    const callback &processGet(const std::string &path) { return m_get[path]; }
-    const callback &processPost(const std::string &path) { return m_post[path]; }
-    bool processMiddleware();
+    const callback processGet(const std::string &path) const;
+    const callback processPost(const std::string &path) const;
+    bool processMiddleware(HttpRequest::ptr req, HttpResponse::ptr res) const;
 
     bool validGet(const std::string &path) { return m_get.count(path); }
     bool validPost(const std::string &path) { return m_post.count(path); }
@@ -33,6 +33,4 @@ private:
     std::unordered_map<std::string, callback> m_get;
     std::unordered_map<std::string, callback> m_post;
     std::list<middleware> m_middleware;
-    HttpRequest::ptr m_req;
-    HttpResponse::ptr m_res;
 };

@@ -8,7 +8,6 @@
 #include"HttpRequest.h"
 #include"HttpResponse.h"
 #include"Json.h"
-#include"Log.h"
 #include"Router.h"
 #include"Singleton.h"
 #include"Socket.h"

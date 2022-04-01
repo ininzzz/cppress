@@ -1,5 +1,7 @@
 #include<iostream>
+#include"Log.h"
 #include"cppress.h"
+#include"cppress-json.h"
 
 int main() {
     LOG_STDOUT_FORMAT("%c\t%p\t%d{%Y-%m-%d %H:%M:%S}\t%m%n");
@@ -7,29 +9,23 @@ int main() {
 
 
     WebServer::ptr server(new WebServer);
+
+    // add router
     Router::ptr router(new Router);
-    router->use([](HttpRequest::ptr req, HttpResponse::ptr res)->bool {
-        printf("middleware1...\n");
-        return true;
-    });
-    router->use([](HttpRequest::ptr req, HttpResponse::ptr res)->bool {
-        printf("middleware2...\n");
-        return true;
-    });
-    router->get("/info", [](HttpRequest::ptr req, HttpResponse::ptr res) {
-        res->send("user info");
+    router->post("/info", [](HttpRequest::ptr req, HttpResponse::ptr res) {
+        res->send("hello");
     });
     server->use("/user", router);
-
-    server->use([](HttpRequest::ptr req, HttpResponse::ptr res)->bool {
-        printf("global...\n");
-        return true;
+    server->use("/user",[](HttpRequest::ptr req, HttpResponse::ptr res) {
+        if (req->getAttribute("json")["usr"] == "admin" && req->getAttribute("json")["pwd"] == "123456") {
+            return true;
+        }
+        res->send("permisson denied");
+        return false;
     });
 
-    server->use([](HttpRequest::ptr req, HttpResponse::ptr res)->bool {
-        req->json();
-        return true;
-    });
+    // use global middleware
+    server->use(json);
     
     server->get("/", [](HttpRequest::ptr req, HttpResponse::ptr res) {
         std::cout << toString(req->method()) << std::endl;
@@ -38,13 +34,15 @@ int main() {
         std::cout << req->getHeader("Connection") << std::endl;
         res->setHeader("Content-Type", "image/png");
         res->sendFile("../xxx.png");
+        LOG_DEBUG("%s", "new connection!");
+        res->send("OK");
     });
     server->post("/", [](HttpRequest::ptr req, HttpResponse::ptr res) {
         std::cout << toString(req->method()) << std::endl;
         std::cout << req->path() << std::endl;
         std::cout << toString(req->version()) << std::endl;
         std::cout << req->getHeader("Connection") << std::endl;
-        std::cout << req->getJson().dump() << std::endl;
+        std::cout << req->getAttribute("json").dump() << std::endl;
         res->sendJson(Json::object{
             {"name","Jack"},
             {"age",20},

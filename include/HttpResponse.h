@@ -29,7 +29,7 @@ public:
     void send(const std::string &msg);
     void sendFile(const std::string &path);
     void sendJson(const Json &json);
-    void reset(int fd) { m_fd = fd; }
+    void sendStatus(HttpStatus status);
     void clear();
 private:
     void makeHeader(int content_length);

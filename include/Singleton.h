@@ -6,7 +6,7 @@
 template <class T>
 class Singleton {
 public:
-    typedef typename std::shared_ptr<T> handleType;
+    using handleType = std::shared_ptr<T>;
 
     Singleton(const Singleton &inst) = delete;
     Singleton &operator=(const Singleton &inst) = delete;
