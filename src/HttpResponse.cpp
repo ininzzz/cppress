@@ -7,24 +7,24 @@ const std::string &HttpResponse::getHeader(const std::string &header) {
 }
 
 void HttpResponse::send(const std::string &msg) {
-    // if (m_buffer->size()) throw std::runtime_error("double send");
     makeHeader(msg.size());
     m_buffer->append(msg); 
 }
 
 void HttpResponse::sendFile(const std::string &path) {
-    if (m_buffer->size()) throw std::runtime_error("double send");
     int fd = ::open(path.c_str(), O_RDONLY);
+    sendFile(fd);
+}
+
+void HttpResponse::sendFile(int fd) {
     struct stat st;
     fstat(fd, &st);
     int len = st.st_size;
-    
     makeHeader(len);
     m_buffer->readFrom(fd);
 }
 
 void HttpResponse::sendJson(const Json &json) {
-    if (m_buffer->size()) throw std::runtime_error("double send");
     std::string msg = std::move(json.dump());
     send(msg);
 }

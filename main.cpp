@@ -2,6 +2,7 @@
 #include"Log.h"
 #include"cppress.h"
 #include"cppress-json.h"
+#include"cppress-static.h"
 
 int main() {
     LOG_STDOUT_FORMAT("%c\t%p\t%d{%Y-%m-%d %H:%M:%S}\t%m%n");
@@ -26,16 +27,17 @@ int main() {
 
     // use global middleware
     server->use(json);
-    
+    server->use(staticFile);
+
     server->get("/", [](HttpRequest::ptr req, HttpResponse::ptr res) {
         std::cout << toString(req->method()) << std::endl;
         std::cout << req->path() << std::endl;
         std::cout << toString(req->version()) << std::endl;
         std::cout << req->getHeader("Connection") << std::endl;
+        std::cout << req->getQuery("name") << std::endl;
+        std::cout << req->getQuery("age") << std::endl;
         res->setHeader("Content-Type", "image/png");
         res->sendFile("../xxx.png");
-        LOG_DEBUG("%s", "new connection!");
-        res->send("OK");
     });
     server->post("/", [](HttpRequest::ptr req, HttpResponse::ptr res) {
         std::cout << toString(req->method()) << std::endl;

@@ -44,8 +44,8 @@ void EventLoop::setTimeoutCallBack(const std::function<void(int)> &func_) {
 
 void EventLoop::loop() {
     while (true) {
-        timer->handle();
         int len = epoll->wait(timeout);
+        timer->handle();
         for (int i = 0;i < len;i++) {
             epoll_event now = epoll->get(i);
             int fd = now.data.fd;

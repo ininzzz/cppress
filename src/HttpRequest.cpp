@@ -1,13 +1,20 @@
 #include"HttpRequest.h"
 
-const std::string HttpRequest::getHeader(const std::string &header) const {
+static std::string empty_string = "";
+
+const std::string &HttpRequest::getHeader(const std::string &header) const {
     auto it = m_headers.find(header);
-    if (it == m_headers.end()) return "";
+    if (it == m_headers.end()) return empty_string;
     else return it->second;
 }
-const std::string HttpRequest::getParam(const std::string &header) const {
+const std::string &HttpRequest::getParam(const std::string &header) const {
     auto it = m_params.find(header);
-    if (it == m_params.end()) return "";
+    if (it == m_params.end()) return empty_string;
+    else return it->second;
+}
+const std::string &HttpRequest::getQuery(const std::string &header) const {
+    auto it = m_querys.find(header);
+    if (it == m_querys.end()) return empty_string;
     else return it->second;
 }
 
@@ -114,9 +121,26 @@ ParseCode HttpRequest::parseLine() {
     while (!isblank(m_line[start]) && m_line[start] != '?') {
         m_path.push_back(m_line[start++]);
     }
+
+    bool iskey = true, isvalue = false;
+    std::string key, value;
     while (!isblank(m_line[start])) {
         m_query.push_back(m_line[start++]);
     }
+    for (int i = 0;i < m_query.size();i++) {
+        if (m_query[i] == '?') continue;
+        else if (m_query[i] == '=') std::swap(iskey, isvalue);
+        else if (m_query[i] == '&') {
+            m_querys.insert({ key,value }), std::swap(iskey, isvalue);
+            key.clear();
+            value.clear();
+        }
+        else if (iskey) key.push_back(m_query[i]);
+        else if (isvalue) value.push_back(m_query[i]);
+
+        if (i == m_query.size() - 1) m_querys.insert({ key,value });
+    }
+
     while (isblank(m_line[start])) start++;
 
     if (strncasecmp(m_line.c_str() + start, "HTTP/1.1", 8) == 0) {
@@ -158,12 +182,6 @@ ParseCode HttpRequest::parseBody() {
     else return ParseCode::OPEN;
 }
 
-// void HttpRequest::json() {
-//     if (m_headers["Content-Type"] == "application/json") {
-//         if (m_content_length == 0) m_json.reset(new Json);
-//         else m_json.reset(new Json(JsonParser(m_body).parse()));
-//     }
-// }
 
 void HttpRequest::setAttribute(const std::string &key, const Json &value) {
     m_attribute[key] = value;

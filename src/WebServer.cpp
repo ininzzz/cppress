@@ -46,7 +46,6 @@ void WebServer::acceptTask() {
 }
 
 void WebServer::readTask(int fd_) {
-    // printf("read task!\n");
 
     HttpRequest::ptr req = conn[fd_]->getRequest();
     HttpResponse::ptr res = conn[fd_]->getResponse();
@@ -59,7 +58,11 @@ void WebServer::readTask(int fd_) {
     else loop->eraseFromTimer(fd_);
 
     for (auto &cb : m_global_middleware) {
-        if (!cb(req, res)) break;;
+        if (!cb(req, res)) {
+            if (conn[fd_]->needWrite()) loop->modEvent(fd_, EPOLLOUT | event);
+            else loop->modEvent(fd_, EPOLLIN | event);
+            return;
+        }
     }
 
     std::string url = req->path();
@@ -73,16 +76,16 @@ void WebServer::readTask(int fd_) {
         if (url[i] == '/' && m_routers.count(prefix)) {
             std::string suffix(url.begin() + i, url.end());
             if (req->method() == HttpMethod::GET && m_routers[prefix]->validGet(suffix)) {
+                ok = true;
                 if (m_routers[prefix]->processMiddleware(req, res)) {
                     m_routers[prefix]->processGet(suffix)(req, res);
-                    ok = true;
                     break;
                 }
             }
             else if (req->method() == HttpMethod::POST && m_routers[prefix]->validPost(suffix)) {
+                ok = true;
                 if (m_routers[prefix]->processMiddleware(req, res)) {
                     m_routers[prefix]->processPost(suffix)(req, res);
-                    ok = true;
                     break;
                 }
             }

@@ -40,8 +40,9 @@ public:
 
     // void json();
 
-    const std::string getHeader(const std::string &header) const;
-    const std::string getParam(const std::string &header) const;
+    const std::string &getHeader(const std::string &header) const;
+    const std::string &getQuery(const std::string &header) const;
+    const std::string &getParam(const std::string &header) const;
     
     void setAttribute(const std::string &key, const Json &value);
     const Json getAttribute(const std::string &header) const;
@@ -67,6 +68,7 @@ private:
 
     std::map<std::string, std::string> m_headers;
     std::map<std::string, std::string> m_params;
+    std::map<std::string, std::string> m_querys;
     
     std::map<std::string, Json> m_attribute;
     

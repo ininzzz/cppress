@@ -3,6 +3,10 @@
 #include<memory>
 #include<map>
 #include<cstring>
+#include<iomanip>
+#include<iostream>
+#include<sstream>
+#include<chrono>
 #include<fcntl.h>
 #include<sys/stat.h>
 #include<unistd.h>
@@ -28,6 +32,7 @@ public:
     
     void send(const std::string &msg);
     void sendFile(const std::string &path);
+    void sendFile(int fd);
     void sendJson(const Json &json);
     void sendStatus(HttpStatus status);
     void clear();
